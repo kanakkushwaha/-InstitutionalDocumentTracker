@@ -1,0 +1,48 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Documents{% endblock %}
+{% block content %}
+<section class="page-panel">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Teacher Records</p>
+            <h1>Department reports, attendance and official uploads</h1>
+        </div>
+    </div>
+    <div class="doc-table-wrap glass-panel">
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Document</th>
+                    <th>About</th>
+                    <th>Department</th>
+                    <th>Category</th>
+                    <th>Owner</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc.id }}</td>
+                    <td>{{ doc.name }}</td>
+                    <td>{{ doc.about }}</td>
+                    <td><span class="dept-chip {{ doc.department_class }}">{{ doc.department }}</span></td>
+                    <td>{{ doc.category }}</td>
+                    <td>{{ doc.owner }}</td>
+                    <td><span class="status-pill {{ doc.status | lower }}">{{ doc.status }}</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="{{ url_for('documents.view_document', doc_id=doc.raw_id) }}">View</a>
+                            <a href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                            <a href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

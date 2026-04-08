@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+{% block title %}My Documents{% endblock %}
+{% block content %}
+<section class="page-panel student-library-shell">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Document Library</p>
+            <h1>Uploaded documents, statuses and review visibility</h1>
+        </div>
+        <a class="button secondary" href="{{ url_for('student.upload_docs') }}">Add Another Upload</a>
+    </div>
+    <div class="student-library-metrics">
+        {% for item in payload.documents[:4] %}
+        <div class="library-metric">
+            <span>{{ item.department }}</span>
+            <strong>{{ item.file_type }}</strong>
+        </div>
+        {% endfor %}
+    </div>
+    <div class="doc-table-wrap glass-panel">
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Document</th>
+                    <th>Category</th>
+                    <th>Owner</th>
+                    <th>Submitted</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in documents %}
+                <tr>
+                    <td>{{ doc.id }}</td>
+                    <td>{{ doc.name }}</td>
+                    <td>{{ doc.category }}</td>
+                    <td>{{ doc.owner }}</td>
+                    <td>{{ doc.submitted_on }}</td>
+                    <td><span class="status-pill {{ doc.status | lower }}">{{ doc.status }}</span></td>
+                    <td>
+                        <div class="table-actions">
+                            <a href="{{ url_for('documents.view_document', doc_id=doc.raw_id) }}">View</a>
+                            <a href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                            <a href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                        </div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,85 @@
+{% extends 'base.html' %}
+{% block title %}Preview {{ document.name }}{% endblock %}
+{% block content %}
+<section class="page-panel document-preview-shell">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Document Preview</p>
+            <h1>{{ document.name }}</h1>
+        </div>
+        <div class="document-action-row">
+            <a class="button ghost" href="{{ url_for(return_endpoint) }}">Back</a>
+            <a class="button ghost" href="{{ url_for('documents.view_document', doc_id=document.id) }}">Details</a>
+            <a class="button primary" href="{{ url_for('documents.download_document', doc_id=document.id) }}">Download</a>
+        </div>
+    </div>
+
+    <article class="glass-panel preview-stage">
+        <div class="preview-sheet live-preview-sheet">
+            <div class="preview-sheet-head">
+                <span>{{ document.file_name }}</span>
+                <span>{{ document.file_type }}</span>
+            </div>
+            <h2>{{ document.name }}</h2>
+            {% if preview_mode == 'pdf' %}
+            <div class="preview-embed-shell">
+                <iframe
+                    class="preview-frame"
+                    src="{{ inline_preview_url }}"
+                    title="Preview {{ document.name }}"
+                ></iframe>
+            </div>
+            {% elif preview_mode == 'image' %}
+            <div class="preview-embed-shell image-preview-shell">
+                <img class="preview-image" src="{{ inline_preview_url }}" alt="{{ document.name }}">
+            </div>
+            {% elif preview_mode == 'link' %}
+            <div class="preview-placeholder">
+                <span>External Link</span>
+                <strong>{{ document.file_name }}</strong>
+                <a class="button secondary" href="{{ inline_preview_url }}" target="_blank" rel="noopener noreferrer">Open Link</a>
+            </div>
+            {% else %}
+            <div class="preview-placeholder">
+                <span>{{ document.file_type }}</span>
+                <strong>Inline preview is not available for this file type.</strong>
+                <small>Use download to open the file on your device.</small>
+            </div>
+            {% endif %}
+            <div class="preview-watermark">{{ document.category }}</div>
+            <div class="preview-meta-line">
+                <strong>{{ document.owner }}</strong>
+                <span>{{ document.department }}</span>
+                <span>{{ document.submitted_on }}</span>
+            </div>
+        </div>
+    </article>
+
+    {% if can_manage %}
+    <article class="glass-panel document-manage-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Manage File</p>
+                <h2>Re-upload or remove this document</h2>
+            </div>
+        </div>
+        {% if document.input_kind == 'file' %}
+        <form class="document-manage-row" method="post" action="{{ url_for('documents.upload_document') }}" enctype="multipart/form-data">
+            <input type="hidden" name="preset_key" value="{{ document.preset_key }}">
+            <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.docx" required>
+            <button class="button secondary" type="submit">Re-upload</button>
+        </form>
+        {% elif document.input_kind == 'link' %}
+        <form class="document-manage-row" method="post" action="{{ url_for('documents.upload_document') }}">
+            <input type="hidden" name="preset_key" value="{{ document.preset_key }}">
+            <input type="url" name="link_value" value="{{ document.value }}" required>
+            <button class="button secondary" type="submit">Update Link</button>
+        </form>
+        {% endif %}
+        <form method="post" action="{{ url_for('documents.delete_document', doc_id=document.raw_id) }}">
+            <button class="button danger" type="submit" onclick="return confirm('Delete this document?')">Delete</button>
+        </form>
+    </article>
+    {% endif %}
+</section>
+{% endblock %}

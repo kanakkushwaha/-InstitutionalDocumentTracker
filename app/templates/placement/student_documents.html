@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% macro cell_document_rows(documents) %}
+<div class="doc-table-wrap admin-doc-table-wrap">
+    <table class="doc-table simple-doc-table">
+        <thead>
+            <tr>
+                <th>Document</th>
+                <th>About</th>
+                <th>Student</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.name }}</td>
+                <td>{{ doc.about }}</td>
+                <td>{{ doc.owner }}<div class="cell-sub">{{ doc.department }}</div></td>
+                <td><span class="status-pill {{ doc.status | lower | replace(' ', '-') }}">{{ doc.status }}</span></td>
+                <td class="message-cell">{{ doc.message }}</td>
+                <td>
+                    <form class="review-form" method="post" action="{{ url_for('documents.review_document', doc_id=doc.raw_id) }}">
+                        <select name="status">
+                            <option {% if doc.status == 'Approved' %}selected{% endif %}>Approved</option>
+                            <option {% if doc.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option {% if doc.status == 'Changes Requested' %}selected{% endif %}>Changes Requested</option>
+                            <option {% if doc.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                        <input type="text" name="message" placeholder="Placement review note">
+                        <button class="table-link upload-link" type="submit">Send Review</button>
+                    </form>
+                    <div class="table-actions">
+                        <a class="table-link" href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                        <a class="table-link" href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No placement documents uploaded for this student yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+{% block title %}{{ student.name }} Documents{% endblock %}
+{% block content %}
+<section class="student-simple-shell">
+    <div class="notification-center">
+        <div class="notification-bar">
+            <strong>{{ payload.cell_title }}</strong>
+            <span>Review placement documents for {{ student.name }}.</span>
+        </div>
+        <div class="notification-list">
+            {% for item in payload.activity %}
+            <div class="notification-item">{{ item }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <article class="glass-panel student-summary-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Student Details</p>
+                <h1>{{ student.name }}</h1>
+            </div>
+            <div class="dashboard-actions">
+                <a class="button secondary" href="{{ url_for('placement.dashboard') }}">Back to students</a>
+            </div>
+        </div>
+        <div class="student-info-grid">
+            <div class="detail-box"><span>Email</span><strong>{{ student.email }}</strong></div>
+            <div class="detail-box"><span>PRN</span><strong>{{ student.prn or 'Not assigned' }}</strong></div>
+            <div class="detail-box"><span>Department</span><strong>{{ student.department.name if student.department else 'Not assigned' }}</strong></div>
+            <div class="detail-box"><span>Documents</span><strong>{{ documents|length }}</strong></div>
+        </div>
+    </article>
+
+    <article class="glass-panel student-table-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Placement Documents</p>
+                <h2>Documents uploaded by {{ student.name }}</h2>
+            </div>
+        </div>
+        {{ cell_document_rows(documents) }}
+    </article>
+</section>
+{% endblock %}

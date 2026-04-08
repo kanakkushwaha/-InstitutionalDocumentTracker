@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block title %}Manage Users{% endblock %}
+{% block content %}
+<section class="page-panel">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Admin Tools</p>
+            <h1>Students, teachers, admin and cell directory</h1>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        <article class="glass-panel">
+            <h2>Students</h2>
+            {% for user in users.students %}
+            <div class="user-card">
+                <strong>{{ user.name }}</strong>
+                <span>{{ user.prn }} | {{ user.department }}</span>
+                <small>{{ user.status }}</small>
+            </div>
+            {% endfor %}
+        </article>
+        <article class="glass-panel">
+            <h2>Teachers</h2>
+            {% for user in users.teachers %}
+            <div class="user-card">
+                <strong>{{ user.name }}</strong>
+                <span>{{ user.email }}</span>
+                <small>{{ user.role }} | {{ user.department }}</small>
+            </div>
+            {% endfor %}
+        </article>
+        <article class="glass-panel">
+            <h2>Placement Cell</h2>
+            {% for user in users.placement %}
+            <div class="user-card">
+                <strong>{{ user.name }}</strong>
+                <span>{{ user.email }}</span>
+                <small>{{ user.role }} | {{ user.department }}</small>
+            </div>
+            {% else %}
+            <div class="notification-item">No placement cell accounts available.</div>
+            {% endfor %}
+        </article>
+        <article class="glass-panel">
+            <h2>Scholarship Cell</h2>
+            {% for user in users.scholarship %}
+            <div class="user-card">
+                <strong>{{ user.name }}</strong>
+                <span>{{ user.email }}</span>
+                <small>{{ user.role }} | {{ user.department }}</small>
+            </div>
+            {% else %}
+            <div class="notification-item">No scholarship cell accounts available.</div>
+            {% endfor %}
+        </article>
+    </div>
+</section>
+{% endblock %}

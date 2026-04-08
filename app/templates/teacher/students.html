@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+{% block title %}Students{% endblock %}
+{% block content %}
+<section class="page-panel">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Teacher View</p>
+            <h1>Student directory and readiness overview</h1>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        {% for student in students %}
+        <article class="glass-panel">
+            <h2>{{ student.name }}</h2>
+            <p>{{ student.prn }}</p>
+            <p>{{ student.study_year }}</p>
+            <p>{{ student.department }}</p>
+            <p>{{ student.email }}</p>
+            <span class="status-pill approved">{{ student.status }}</span>
+        </article>
+        {% endfor %}
+    </div>
+</section>
+{% endblock %}

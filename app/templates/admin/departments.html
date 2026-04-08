@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+{% block title %}Departments{% endblock %}
+{% block content %}
+<section class="page-panel">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Department Monitor</p>
+            <h1>{{ payload.focus_title or 'Placement, scholarship and department analytics' }}</h1>
+        </div>
+    </div>
+    <div class="dashboard-grid">
+        {% for dept in payload.departments %}
+        <article class="glass-panel dept-card {{ dept.theme }}">
+            <h2>{{ dept.name }}</h2>
+            <p>Lead: {{ dept.lead }}</p>
+            <div class="metric-row">
+                <strong>{{ dept.pending }}</strong>
+                <span>Pending</span>
+            </div>
+            <div class="metric-row">
+                <strong>{{ dept.approved }}</strong>
+                <span>Approved</span>
+            </div>
+        </article>
+        {% endfor %}
+    </div>
+    {% if payload.focus_docs %}
+    <article class="glass-panel">
+        <h2>{{ payload.focus_title }} Documents</h2>
+        {% for doc in payload.focus_docs %}
+        <div class="user-card">
+            <strong>{{ doc.name }}</strong>
+            <span>{{ doc.owner }} | {{ doc.department }}</span>
+            <small>{{ doc.status }}</small>
+        </div>
+        {% endfor %}
+    </article>
+    {% endif %}
+</section>
+{% endblock %}

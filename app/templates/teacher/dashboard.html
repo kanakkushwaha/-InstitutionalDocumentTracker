@@ -1,0 +1,124 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% macro teacher_table(documents, review=false) %}
+<div class="doc-table-wrap">
+    <table class="doc-table simple-doc-table">
+        <thead>
+            <tr>
+                <th>Document</th>
+                <th>About</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.name }}{% if doc.owner %}<div class="cell-sub">{{ doc.owner }}</div>{% endif %}</td>
+                <td>{{ doc.about }}</td>
+                <td><span class="dept-chip {{ doc.department_class }}">{{ doc.department }}</span></td>
+                <td><span class="status-pill {{ doc.status | lower | replace(' ', '-') }}">{{ doc.status }}</span></td>
+                <td class="message-cell">{{ doc.message }}</td>
+                <td>
+                    {% if review %}
+                    <form class="review-form" method="post" action="{{ url_for('documents.review_document', doc_id=doc.raw_id) }}">
+                        <select name="status">
+                            <option {% if doc.status == 'Approved' %}selected{% endif %}>Approved</option>
+                            <option {% if doc.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option {% if doc.status == 'Changes Requested' %}selected{% endif %}>Changes Requested</option>
+                            <option {% if doc.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                        <input type="text" name="message" placeholder="Ask for changes or leave note">
+                        <button class="table-link upload-link" type="submit">Send Review</button>
+                    </form>
+                    <div class="table-actions">
+                        <a class="table-link" href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                        <a class="table-link" href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                    </div>
+                    {% elif doc.uploaded %}
+                    <form class="inline-upload-form" method="post" action="{{ url_for('documents.upload_document') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="preset_key" value="{{ doc.preset_key }}">
+                        <input type="file" name="file" required>
+                        <div class="table-actions">
+                            <a class="table-link" href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                            <a class="table-link" href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                            <button class="table-link upload-link" type="submit">Re-upload</button>
+                        </div>
+                    </form>
+                    <form class="inline-delete-form" method="post" action="{{ url_for('documents.delete_document', doc_id=doc.raw_id) }}">
+                        <button class="table-link danger-link" type="submit" onclick="return confirm('Delete this document?')">Delete</button>
+                    </form>
+                    {% else %}
+                    <form class="inline-upload-form" method="post" action="{{ url_for('documents.upload_document') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="preset_key" value="{{ doc.preset_key }}">
+                        <input type="file" name="file" required>
+                        <button class="table-link upload-link" type="submit">Upload</button>
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+{% block content %}
+<section class="student-simple-shell">
+    <div class="notification-center">
+        <div class="notification-bar">
+            <strong>Teacher Dashboard</strong>
+            <span>Upload your own department documents, review student submissions, and send messages for corrections.</span>
+        </div>
+        <div class="notification-list">
+            {% for note in payload.activity %}
+            <div class="notification-item">{{ note }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <article class="glass-panel student-summary-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Teacher Details</p>
+                <h1>{{ payload.teacher.name }}</h1>
+            </div>
+            <div class="dashboard-actions">
+                <a class="button secondary" href="{{ url_for('teacher.students') }}">Students</a>
+                <a class="button ghost" href="{{ url_for('teacher.profile') }}">Profile</a>
+            </div>
+        </div>
+        <div class="student-info-grid">
+            <div class="detail-box"><span>Email</span><strong>{{ payload.teacher.email }}</strong></div>
+            <div class="detail-box"><span>Role</span><strong>{{ payload.teacher.role.title() }}</strong></div>
+            <div class="detail-box"><span>Department</span><strong>{{ payload.teacher.department.name if payload.teacher.department else 'Not assigned' }}</strong></div>
+            <div class="detail-box"><span>Students</span><strong>{{ payload.students|length }}</strong></div>
+            <div class="detail-box"><span>Own Docs</span><strong>{{ payload.documents|length }}</strong></div>
+            <div class="detail-box"><span>Student Docs</span><strong>{{ payload.student_documents|length }}</strong></div>
+        </div>
+    </article>
+
+    <section class="student-grouped-tables">
+        <article class="glass-panel student-table-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Teacher Uploads</p>
+                    <h2>Department documents to upload</h2>
+                </div>
+            </div>
+            {{ teacher_table(payload.documents) }}
+        </article>
+
+        <article class="glass-panel student-table-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Student Class Documents</p>
+                    <h2>Monitor student uploads and send review changes</h2>
+                </div>
+            </div>
+            {{ teacher_table(payload.student_documents, true) }}
+        </article>
+    </section>
+</section>
+{% endblock %}

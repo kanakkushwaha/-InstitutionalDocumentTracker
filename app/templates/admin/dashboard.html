@@ -1,0 +1,162 @@
+{% extends 'base.html' %}
+{% block title %}Admin Dashboard{% endblock %}
+{% macro admin_document_rows(documents) %}
+<div class="doc-table-wrap admin-doc-table-wrap">
+    <table class="doc-table simple-doc-table">
+        <thead>
+            <tr>
+                <th>Document</th>
+                <th>About</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.name }}</td>
+                <td>{{ doc.about }}</td>
+                <td><span class="dept-chip {{ doc.department_class }}">{{ doc.department }}</span></td>
+                <td><span class="status-pill {{ doc.status | lower | replace(' ', '-') }}">{{ doc.status }}</span></td>
+                <td class="message-cell">{{ doc.message }}</td>
+                <td>
+                    <form class="review-form" method="post" action="{{ url_for('documents.review_document', doc_id=doc.raw_id) }}">
+                        <select name="status">
+                            <option {% if doc.status == 'Approved' %}selected{% endif %}>Approved</option>
+                            <option {% if doc.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option {% if doc.status == 'Changes Requested' %}selected{% endif %}>Changes Requested</option>
+                            <option {% if doc.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                        <input type="text" name="message" placeholder="Admin review note">
+                        <button class="table-link upload-link" type="submit">Send Review</button>
+                    </form>
+                    <div class="table-actions">
+                        <a class="table-link" href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                        <a class="table-link" href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No documents available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+{% macro admin_review_groups(groups, title, role_key) %}
+<article class="glass-panel student-table-panel admin-review-panel" data-admin-role-group="{{ role_key }}">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">{{ title }}</p>
+            <h2>Click one name to review all related documents</h2>
+        </div>
+        <div class="admin-review-summary">
+            <span>{{ groups|length }} {{ role_key }}s</span>
+        </div>
+    </div>
+    <div class="admin-review-groups">
+        {% for group in groups %}
+        <details class="admin-review-card" {% if loop.first %}open{% endif %}>
+            <summary class="admin-review-toggle">
+                <div class="admin-review-owner">
+                    <span class="student-avatar admin-avatar">{{ group.name[:2]|upper }}</span>
+                    <div>
+                        <strong>{{ group.name }}</strong>
+                        <p>{{ group.email }}</p>
+                    </div>
+                </div>
+                <div class="admin-review-metrics">
+                    <span class="dept-chip {{ group.department_class }}">{{ group.department }}</span>
+                    <span class="status-pill {% if group.needs_attention %}pending{% else %}approved{% endif %}">
+                        {% if group.needs_attention %}Needs Review{% else %}Reviewed{% endif %}
+                    </span>
+                    <span class="admin-mini-stat">{{ group.document_count }} docs</span>
+                    <span class="admin-mini-stat">{{ group.pending_count }} pending</span>
+                </div>
+            </summary>
+            <div class="admin-review-body">
+                <div class="admin-review-note">
+                    <strong>Latest review note</strong>
+                    <span>{{ group.latest_message }}</span>
+                </div>
+                {{ admin_document_rows(group.documents) }}
+            </div>
+        </details>
+        {% else %}
+        <div class="notification-item">No {{ role_key }} documents available right now.</div>
+        {% endfor %}
+    </div>
+</article>
+{% endmacro %}
+{% block content %}
+<section class="student-simple-shell">
+    <div class="notification-center">
+        <div class="notification-bar">
+            <strong>Admin Command Centre</strong>
+            <span>Review one person at a time, send changes, and keep student and teacher records organised.</span>
+        </div>
+        <div class="notification-list">
+            {% for item in payload.activity %}
+            <div class="notification-item">{{ item }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <section class="stats-grid">
+        {% for stat in payload.stats %}
+        <article class="stat-card">
+            <p>{{ stat.label }}</p>
+            <h2>{{ stat.value }}</h2>
+            <span>{{ stat.detail }}</span>
+        </article>
+        {% endfor %}
+    </section>
+
+    <article class="glass-panel student-summary-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Monitoring Scope</p>
+                <h1>Students and teachers under one dashboard</h1>
+            </div>
+            <div class="dashboard-actions">
+                <a class="button secondary" href="{{ url_for('admin.profile') }}">My Profile</a>
+                <a class="button secondary" href="{{ url_for('admin.manage_users') }}">Users</a>
+                <a class="button ghost" href="{{ url_for('admin.manage_documents') }}">All Documents</a>
+            </div>
+        </div>
+        <div class="student-info-grid">
+            <div class="detail-box"><span>Students</span><strong>{{ payload.users.students|length }}</strong></div>
+            <div class="detail-box"><span>Teachers</span><strong>{{ payload.users.teachers|length }}</strong></div>
+            <div class="detail-box"><span>Placement Cell</span><strong>{{ payload.users.placement|length }}</strong></div>
+            <div class="detail-box"><span>Scholarship Cell</span><strong>{{ payload.users.scholarship|length }}</strong></div>
+            <div class="detail-box"><span>Student Docs</span><strong>{{ payload.student_documents|length }}</strong></div>
+            <div class="detail-box"><span>Teacher Docs</span><strong>{{ payload.teacher_documents|length }}</strong></div>
+            <div class="detail-box"><span>Pending</span><strong>{{ payload.stats[2].value }}</strong></div>
+            <div class="detail-box"><span>Departments</span><strong>{{ payload.stats[3].value }}</strong></div>
+        </div>
+    </article>
+
+    <article class="glass-panel student-table-panel admin-filter-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Review Filters</p>
+                <h2>Switch between student and teacher review queues</h2>
+            </div>
+        </div>
+        <div class="admin-filter-row">
+            <button class="table-link admin-filter-button is-active" type="button" data-admin-filter="all">All</button>
+            <button class="table-link admin-filter-button" type="button" data-admin-filter="student">Students</button>
+            <button class="table-link admin-filter-button" type="button" data-admin-filter="teacher">Teachers</button>
+        </div>
+    </article>
+
+    <section class="student-grouped-tables admin-review-shell">
+        {{ admin_review_groups(payload.student_review_groups, 'Student Reviews', 'student') }}
+        {{ admin_review_groups(payload.teacher_review_groups, 'Teacher Reviews', 'teacher') }}
+    </section>
+</section>
+{% endblock %}

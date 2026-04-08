@@ -1,0 +1,91 @@
+{% extends 'base.html' %}
+{% block title %}Admin Profile{% endblock %}
+{% block content %}
+<section class="student-profile-layout">
+    <article class="glass-panel student-profile-card">
+        <div class="student-profile-head">
+            {% if profile.profile_image %}
+            <img class="student-avatar large profile-avatar-image" src="{{ profile.profile_image }}" alt="{{ profile.name }} profile picture">
+            {% else %}
+            <div class="student-avatar large">{{ profile.avatar_initials }}</div>
+            {% endif %}
+            <div>
+                <p class="eyebrow">Admin Profile</p>
+                <h1>{{ profile.name }}</h1>
+                <p>{{ profile.role }}</p>
+            </div>
+        </div>
+        <div class="student-detail-grid">
+            <div class="detail-box">
+                <span>Email</span>
+                <strong>{{ profile.email }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Department</span>
+                <strong>{{ profile.department or 'Not assigned' }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Contact</span>
+                <strong>{{ profile.contact_number or 'Not added' }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Status</span>
+                <strong>Active</strong>
+            </div>
+        </div>
+    </article>
+
+    <article class="glass-panel student-profile-side">
+        <p class="eyebrow">Edit Personal Details</p>
+        <form class="profile-form" method="post" enctype="multipart/form-data">
+            <label>
+                <span>Full Name</span>
+                <input type="text" name="name" value="{{ profile.name }}" required>
+            </label>
+            <label>
+                <span>Email</span>
+                <input type="email" name="email" value="{{ profile.email }}" required>
+            </label>
+            <label>
+                <span>Contact Number</span>
+                <input type="text" name="contact_number" value="{{ profile.contact_number }}" placeholder="Enter phone number">
+            </label>
+            <label>
+                <span>Department</span>
+                <select name="department_id">
+                    {% for department in profile.department_options %}
+                    <option value="{{ department.id }}" {% if department.id == profile.department_id %}selected{% endif %}>{{ department.name }}</option>
+                    {% endfor %}
+                </select>
+            </label>
+            <label>
+                <span>Profile Picture</span>
+                <input type="file" name="profile_image" accept=".png,.jpg,.jpeg">
+            </label>
+            <input type="hidden" name="profile_image_cropped">
+            <div class="profile-crop-card" data-profile-cropper>
+                <div class="profile-crop-preview-shell">
+                    <div class="profile-crop-empty" data-crop-empty>Choose an image to crop your profile photo.</div>
+                    <img class="profile-crop-preview" data-crop-preview alt="Cropped profile preview" hidden>
+                </div>
+                <div class="profile-crop-controls" data-crop-controls hidden>
+                    <label>
+                        <span>Zoom</span>
+                        <input type="range" name="crop_zoom" min="1" max="3" step="0.01" value="1">
+                    </label>
+                    <label>
+                        <span>Horizontal Position</span>
+                        <input type="range" name="crop_x" min="0" max="100" step="1" value="50">
+                    </label>
+                    <label>
+                        <span>Vertical Position</span>
+                        <input type="range" name="crop_y" min="0" max="100" step="1" value="50">
+                    </label>
+                    <button class="button ghost" type="button" data-crop-reset>Reset Crop</button>
+                </div>
+            </div>
+            <button class="button primary profile-submit" type="submit">Save Profile</button>
+        </form>
+    </article>
+</section>
+{% endblock %}

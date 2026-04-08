@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+{% macro cell_document_rows(documents) %}
+<div class="doc-table-wrap admin-doc-table-wrap">
+    <table class="doc-table simple-doc-table">
+        <thead>
+            <tr>
+                <th>Document</th>
+                <th>About</th>
+                <th>Student</th>
+                <th>Status</th>
+                <th>Message</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.name }}</td>
+                <td>{{ doc.about }}</td>
+                <td>{{ doc.owner }}<div class="cell-sub">{{ doc.department }}</div></td>
+                <td><span class="status-pill {{ doc.status | lower | replace(' ', '-') }}">{{ doc.status }}</span></td>
+                <td class="message-cell">{{ doc.message }}</td>
+                <td>
+                    <form class="review-form" method="post" action="{{ url_for('documents.review_document', doc_id=doc.raw_id) }}">
+                        <select name="status">
+                            <option {% if doc.status == 'Approved' %}selected{% endif %}>Approved</option>
+                            <option {% if doc.status == 'Pending' %}selected{% endif %}>Pending</option>
+                            <option {% if doc.status == 'Changes Requested' %}selected{% endif %}>Changes Requested</option>
+                            <option {% if doc.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                        </select>
+                        <input type="text" name="message" placeholder="Scholarship review note">
+                        <button class="table-link upload-link" type="submit">Send Review</button>
+                    </form>
+                    <div class="table-actions">
+                        <a class="table-link" href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                        <a class="table-link" href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No scholarship documents available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+{% block title %}Scholarship Cell Dashboard{% endblock %}
+{% block content %}
+<section class="student-simple-shell">
+    <div class="notification-center">
+        <div class="notification-bar">
+            <strong>{{ payload.cell_title }}</strong>
+            <span>Review scholarship-only student submissions from one focused workspace.</span>
+        </div>
+        <div class="notification-list">
+            {% for item in payload.activity %}
+            <div class="notification-item">{{ item }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <section class="stats-grid">
+        {% for stat in payload.stats %}
+        <article class="stat-card">
+            <p>{{ stat.label }}</p>
+            <h2>{{ stat.value }}</h2>
+            <span>{{ stat.detail }}</span>
+        </article>
+        {% endfor %}
+    </section>
+
+    <article class="glass-panel student-summary-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Scholarship Desk</p>
+                <h1>{{ payload.cell_user.name }}</h1>
+            </div>
+            <div class="dashboard-actions">
+                <a class="button secondary" href="{{ url_for('scholarship.profile') }}">My Profile</a>
+            </div>
+        </div>
+        <div class="student-info-grid">
+            <div class="detail-box"><span>Email</span><strong>{{ payload.cell_user.email }}</strong></div>
+            <div class="detail-box"><span>Department</span><strong>{{ payload.cell_user.department.name if payload.cell_user.department else 'Scholarship Cell' }}</strong></div>
+            <div class="detail-box"><span>Students</span><strong>{{ payload.students|length }}</strong></div>
+            <div class="detail-box"><span>Filtered Docs</span><strong>{{ payload.documents|length }}</strong></div>
+        </div>
+    </article>
+
+    <article class="glass-panel student-table-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Students</p>
+                <h2>Click to view student documents and status</h2>
+            </div>
+        </div>
+        <style>
+            .student-accordion {
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+            .student-card {
+                border: 1px solid #333;
+                border-radius: 8px;
+                overflow: hidden;
+                background: #1e1e2e;
+                box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+                transition: box-shadow 0.2s;
+            }
+            .student-card:hover {
+                box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+                border-color: #667eea;
+            }
+            .student-header {
+                padding: 16px 20px;
+                cursor: pointer;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+                color: white;
+                font-weight: 600;
+                transition: background 0.2s;
+            }
+            .student-header:hover {
+                background: linear-gradient(135deg, #5a6fd8 0%, #6b409a 100%);
+            }
+            .student-header .arrow {
+                transition: transform 0.3s;
+                font-size: 18px;
+                margin-left: 16px;
+                flex-shrink: 0;
+            }
+            .student-header.active .arrow {
+                transform: rotate(180deg);
+            }
+            .student-info {
+                display: flex;
+                justify-content: space-between;
+                flex: 1;
+                align-items: center;
+                gap: 30px;
+            }
+            .student-info .name-section {
+                flex: 1;
+            }
+            .student-info .name-section strong {
+                font-size: 16px;
+                display: block;
+                margin-bottom: 4px;
+                color: white;
+            }
+            .student-info .name-section .meta {
+                font-size: 13px;
+                opacity: 0.95;
+                line-height: 1.4;
+                color: rgba(255, 255, 255, 0.9);
+            }
+            .student-info .stats-section {
+                text-align: right;
+                font-size: 13px;
+                white-space: nowrap;
+                color: white;
+            }
+            .student-info .stats-section .doc-count {
+                font-size: 16px;
+                font-weight: 700;
+                margin-bottom: 4px;
+                color: white;
+            }
+            .student-info .stats-section .doc-status {
+                opacity: 0.9;
+                font-size: 12px;
+                color: rgba(255, 255, 255, 0.8);
+            }
+            .student-docs {
+                display: none;
+                padding: 20px;
+                background: #252535;
+                max-height: 600px;
+                overflow-y: auto;
+            }
+            .student-docs.active {
+                display: block;
+            }
+            .doc-item {
+                padding: 14px;
+                margin-bottom: 12px;
+                border-left: 4px solid #667eea;
+                background: #2a2a3e;
+                border-radius: 4px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                gap: 16px;
+                border: 1px solid #333;
+            }
+            .doc-item .doc-name {
+                flex: 1;
+            }
+            .doc-item .doc-name strong {
+                display: block;
+                font-size: 14px;
+                margin-bottom: 4px;
+                color: #e0e0e0;
+            }
+            .doc-item .doc-name .category {
+                font-size: 12px;
+                color: #999;
+            }
+            .doc-item .status-pill {
+                padding: 6px 12px;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                white-space: nowrap;
+                text-transform: uppercase;
+                letter-spacing: 0.5px;
+            }
+            .status-pill.pending {
+                background: #664400;
+                color: #ffd700;
+            }
+            .status-pill.approved {
+                background: #1a4d2e;
+                color: #5effa3;
+            }
+            .status-pill.rejected {
+                background: #4d1a1a;
+                color: #ff6b6b;
+            }
+            .status-pill.changes-requested {
+                background: #1a3a4d;
+                color: #66d9ff;
+            }
+            .doc-item .doc-actions {
+                display: flex;
+                gap: 10px;
+                flex-shrink: 0;
+            }
+            .doc-item .doc-actions a {
+                padding: 6px 12px;
+                font-size: 12px;
+                background: #667eea;
+                color: white;
+                border-radius: 4px;
+                text-decoration: none;
+                transition: background 0.2s;
+            }
+            .doc-item .doc-actions a:hover {
+                background: #5a6fd8;
+            }
+            .doc-item .review-form {
+                display: flex;
+                gap: 10px;
+                flex-shrink: 0;
+                align-items: center;
+            }
+            .doc-item .review-form select {
+                padding: 6px 10px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                font-size: 12px;
+                background: #1e1e2e;
+                color: #e0e0e0;
+                cursor: pointer;
+                min-width: 120px;
+            }
+            .doc-item .review-form select:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+            }
+            .doc-item .review-form select option {
+                background: #1e1e2e;
+                color: #e0e0e0;
+            }
+            .doc-item .review-form input[type="text"] {
+                padding: 6px 10px;
+                border: 1px solid #444;
+                border-radius: 4px;
+                font-size: 12px;
+                background: #2a2a3e;
+                color: #e0e0e0;
+                min-width: 150px;
+            }
+            .doc-item .review-form input[type="text"]:focus {
+                outline: none;
+                border-color: #667eea;
+                box-shadow: 0 0 5px rgba(102, 126, 234, 0.3);
+            }
+            .doc-item .review-form input[type="text"]::placeholder {
+                color: #666;
+            }
+            .doc-item .review-form button {
+                padding: 6px 14px;
+                background: #28a745;
+                color: white;
+                border: none;
+                border-radius: 4px;
+                font-size: 12px;
+                font-weight: 600;
+                cursor: pointer;
+                transition: background 0.2s;
+                white-space: nowrap;
+            }
+            .doc-item .review-form button:hover {
+                background: #218838;
+            }
+            .no-docs {
+                padding: 20px;
+                text-align: center;
+                color: #666;
+                font-size: 14px;
+            }
+        </style>
+
+        <div class="student-accordion">
+            {% if payload.document_groups %}
+                {% for group in payload.document_groups %}
+                <div class="student-card">
+                    <div class="student-header" onclick="this.classList.toggle('active'); this.nextElementSibling.classList.toggle('active')">
+                        <div class="student-info">
+                            <div class="name-section">
+                                <strong>{{ group.name }}</strong>
+                                <div class="meta">
+                                    {{ group.department }}<br>
+                                    📧 {{ group.email }}
+                                </div>
+                            </div>
+                            <div class="stats-section">
+                                <div class="doc-count">{{ group.document_count }}</div>
+                                <div class="doc-status">
+                                    📋 {{ group.document_count }} docs • ⏳ {{ group.pending_count }} • ✅ {{ group.approved_count }}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="arrow">⋮</span>
+                    </div>
+                    <div class="student-docs">
+                        {% if group.documents %}
+                            {% for doc in group.documents %}
+                            <div class="doc-item">
+                                <div class="doc-name">
+                                    <strong>{{ doc.name }}</strong>
+                                    <div class="category">{{ doc.category }}</div>
+                                </div>
+                                <span class="status-pill {{ doc.status | lower | replace(' ', '-') }}">{{ doc.status }}</span>
+                                <form class="review-form" method="post" action="{{ url_for('documents.review_document', doc_id=doc.raw_id) }}">
+                                    <select name="status" required>
+                                        <option value="">Select Status</option>
+                                        <option value="Approved" {% if doc.status == 'Approved' %}selected{% endif %}>✅ Approved</option>
+                                        <option value="Pending" {% if doc.status == 'Pending' %}selected{% endif %}>⏳ Pending</option>
+                                        <option value="Changes Requested" {% if doc.status == 'Changes Requested' %}selected{% endif %}>📝 Changes Requested</option>
+                                        <option value="Rejected" {% if doc.status == 'Rejected' %}selected{% endif %}>❌ Rejected</option>
+                                    </select>
+                                    <input type="text" name="message" placeholder="Add message (optional)" maxlength="100">
+                                    <button type="submit">Send</button>
+                                </form>
+                                <div class="doc-actions">
+                                    <a href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                                    <a href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div class="no-docs">No documents uploaded yet.</div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-docs">No students with scholarship documents available.</div>
+            {% endif %}
+        </div>
+    </article>
+</section>
+{% endblock %}

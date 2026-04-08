@@ -1,0 +1,123 @@
+{% extends 'base.html' %}
+{% block title %}Institutional Document Tracker{% endblock %}
+{% block body_class %}landing-body{% endblock %}
+{% block content %}
+<section class="hero-panel">
+    <div class="hero-copy">
+        <p class="eyebrow">Animated College Document Ecosystem</p>
+        <h1>Secure, colourful and role-based tracking for every institutional document.</h1>
+        <p class="hero-text">
+            Students upload academic and placement records, teachers monitor department flow,
+            and admin controls approvals, reports, departments and transparency from one intelligent dashboard.
+        </p>
+        <div class="hero-actions">
+            <a class="button primary" href="{{ url_for('auth.login') }}">Launch Dashboard</a>
+            <a class="button secondary" href="{{ url_for('auth.register') }}">Create Account UI</a>
+        </div>
+        <div class="credential-strip">
+            <span>`admin.aarav@institution.edu / admin-aarav1`</span>
+            <span>`teacher.meera@institution.edu / teach-meera1`</span>
+            <span>`student.2025ce001@institution.edu / stu-2025ce001`</span>
+            <span>`placement.kabir@institution.edu / place-kabir1`</span>
+            <span>`scholarship.neha@institution.edu / schol-neha1`</span>
+        </div>
+    </div>
+
+    <div class="hero-stage">
+        <div class="orbital-grid"></div>
+        <div class="float-card card-admin">
+            <strong>Admin Control</strong>
+            <span>Users, approvals, reports</span>
+        </div>
+        <div class="float-card card-placement">
+            <strong>Placement Cell</strong>
+            <span>Resume and offer tracking</span>
+        </div>
+        <div class="float-card card-scholarship">
+            <strong>Scholarship Desk</strong>
+            <span>Transparent financial workflows</span>
+        </div>
+        <div class="float-card card-academic">
+            <strong>Academic Vault</strong>
+            <span>Marksheets, ID and bonafide records</span>
+        </div>
+    </div>
+</section>
+
+<section class="stats-grid">
+    {% for stat in payload.stats %}
+    <article class="stat-card reveal-on-scroll">
+        <p>{{ stat.label }}</p>
+        <h2>{{ stat.value }}</h2>
+        <span>{{ stat.detail }}</span>
+    </article>
+    {% endfor %}
+</section>
+
+<section class="feature-grid">
+    <article class="glass-panel reveal-on-scroll">
+        <h3>Admin HQ</h3>
+        <ul>
+            <li>Total users, documents, pending approvals and recent activity</li>
+            <li>Add, edit and review students, teachers and cell teams</li>
+            <li>Approve or reject every uploaded document</li>
+            <li>Download department-wise reports</li>
+        </ul>
+    </article>
+    <article class="glass-panel reveal-on-scroll">
+        <h3>Student Journey</h3>
+        <ul>
+            <li>Upload marksheet, Aadhaar, resume, scholarship and fee receipt</li>
+            <li>Track approval status and upload history</li>
+            <li>Keep profile and academic identity in one place</li>
+        </ul>
+    </article>
+    <article class="glass-panel reveal-on-scroll">
+        <h3>Teacher Workspace</h3>
+        <ul>
+            <li>Monitor student submissions and department records</li>
+            <li>Upload attendance sheets, reports and official letters</li>
+            <li>View readiness for placement and scholarship review</li>
+        </ul>
+    </article>
+    <article class="glass-panel reveal-on-scroll">
+        <h3>Placement and Scholarship Cells</h3>
+        <ul>
+            <li>Placement cell sees only resumes, links and offer-letter submissions</li>
+            <li>Scholarship cell sees only scholarship and finance-related student records</li>
+            <li>Both teams review, preview and download only their specific document queues</li>
+        </ul>
+    </article>
+</section>
+
+<section class="table-showcase reveal-on-scroll">
+    <div class="section-heading">
+        <p class="eyebrow">Live Document Matrix</p>
+        <h2>Complete document coverage for your institutional workflow</h2>
+    </div>
+    <div class="doc-table-wrap">
+        <table class="doc-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Document</th>
+                    <th>Owner</th>
+                    <th>Department</th>
+                    <th>Status</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for doc in payload.documents %}
+                <tr>
+                    <td>{{ doc.id }}</td>
+                    <td>{{ doc.name }}</td>
+                    <td>{{ doc.owner }}</td>
+                    <td>{{ doc.department }}</td>
+                    <td><span class="status-pill {{ doc.status | lower }}">{{ doc.status }}</span></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</section>
+{% endblock %}

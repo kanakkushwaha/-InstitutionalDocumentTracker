@@ -1,0 +1,168 @@
+{% extends 'base.html' %}
+{% block title %}Student Dashboard{% endblock %}
+{% macro document_table(documents) %}
+<div class="doc-table-wrap">
+    <table class="doc-table simple-doc-table">
+        <thead>
+            <tr>
+                <th>Document Name</th>
+                <th>About Document</th>
+                <th>Department</th>
+                <th>Status</th>
+                <th>Message / Changes Required</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for doc in documents %}
+            <tr>
+                <td>{{ doc.name }}</td>
+                <td>{{ doc.about }}</td>
+                <td>
+                    <span class="dept-chip {{ doc.department_class }}">{{ doc.department }}</span>
+                </td>
+                <td><span class="status-pill {{ doc.status | lower | replace(' ', '-') }}">{{ doc.status }}</span></td>
+                <td class="message-cell">{{ doc.message }}</td>
+                <td>
+                    {% if doc.uploaded and doc.input_kind == 'file' %}
+                    <form class="inline-upload-form" method="post" action="{{ url_for('documents.upload_document') }}" enctype="multipart/form-data">
+                        <input type="hidden" name="preset_key" value="{{ doc.preset_key }}">
+                        <input type="file" name="file" required>
+                        <div class="table-actions">
+                            <a class="table-link" href="{{ url_for('documents.preview_document', doc_id=doc.raw_id) }}">Preview</a>
+                            <a class="table-link" href="{{ url_for('documents.download_document', doc_id=doc.raw_id) }}">Download</a>
+                            <button class="table-link upload-link" type="submit">Re-upload</button>
+                        </div>
+                    </form>
+                    <form class="inline-delete-form" method="post" action="{{ url_for('documents.delete_document', doc_id=doc.raw_id) }}">
+                        <button class="table-link danger-link" type="submit" onclick="return confirm('Delete this document?')">Delete</button>
+                    </form>
+                    {% elif doc.uploaded and doc.input_kind == 'link' %}
+                    <form class="inline-upload-form link-form" method="post" action="{{ url_for('documents.upload_document') }}">
+                        <input type="hidden" name="preset_key" value="{{ doc.preset_key }}">
+                        <input type="url" name="link_value" value="{{ doc.value }}" placeholder="https://github.com/username" required>
+                        <div class="table-actions">
+                            <a class="table-link" href="{{ doc.value }}" target="_blank" rel="noopener noreferrer">Open Link</a>
+                            <button class="table-link upload-link" type="submit">Update Link</button>
+                        </div>
+                    </form>
+                    <form class="inline-delete-form" method="post" action="{{ url_for('documents.delete_document', doc_id=doc.raw_id) }}">
+                        <button class="table-link danger-link" type="submit" onclick="return confirm('Delete this document?')">Delete</button>
+                    </form>
+                    {% else %}
+                    <form class="inline-upload-form {% if doc.input_kind == 'link' %}link-form{% endif %}" method="post" action="{{ url_for('documents.upload_document') }}" {% if doc.input_kind == 'file' %}enctype="multipart/form-data"{% endif %}>
+                        <input type="hidden" name="preset_key" value="{{ doc.preset_key }}">
+                        {% if doc.input_kind == 'link' %}
+                        <input type="url" name="link_value" value="{{ doc.value }}" placeholder="https://github.com/username" required>
+                        <button class="table-link upload-link" type="submit">
+                            {% if doc.uploaded %}Update Link{% else %}Save Link{% endif %}
+                        </button>
+                        {% else %}
+                        <input type="file" name="file" required>
+                        <button class="table-link upload-link" type="submit">
+                            {% if doc.uploaded %}Re-upload{% else %}Upload{% endif %}
+                        </button>
+                        {% endif %}
+                    </form>
+                    {% endif %}
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="6">No documents available.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endmacro %}
+{% block content %}
+<section class="student-simple-shell">
+    <div class="notification-center">
+        <div class="notification-bar">
+            <strong>Notification Centre</strong>
+            <span>{{ payload.notification }}</span>
+        </div>
+        <div class="notification-list">
+            {% for note in payload.notifications %}
+            <div class="notification-item">{{ note }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <article class="glass-panel student-summary-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Personal Details</p>
+                <h1>{{ payload.student.name }}</h1>
+            </div>
+            <div class="dashboard-actions">
+                <a class="button secondary" href="{{ url_for('student.profile') }}">Full Profile</a>
+            </div>
+        </div>
+
+        <div class="student-info-grid">
+            <div class="detail-box">
+                <span>PRN</span>
+                <strong>{{ payload.student.prn }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Email</span>
+                <strong>{{ payload.student.email }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Department</span>
+                <strong>{{ payload.student.department }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Current Year</span>
+                <strong>{{ payload.student.study_year }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Contact</span>
+                <strong>{{ payload.student.contact_number }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Status</span>
+                <strong>{{ payload.student.status }}</strong>
+            </div>
+            <div class="detail-box">
+                <span>Total Documents</span>
+                <strong>{{ payload.documents|length }}</strong>
+            </div>
+        </div>
+    </article>
+
+    <section class="student-grouped-tables">
+        <article class="glass-panel student-table-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Academic Documents</p>
+                    <h2>General and identity records</h2>
+                </div>
+            </div>
+            {{ document_table(payload.document_groups.academic) }}
+        </article>
+
+        <article class="glass-panel student-table-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Placement Documents</p>
+                    <h2>Career and internship records</h2>
+                </div>
+            </div>
+            {{ document_table(payload.document_groups.placement) }}
+        </article>
+
+        <article class="glass-panel student-table-panel">
+            <div class="section-heading">
+                <div>
+                    <p class="eyebrow">Scholarship Documents</p>
+                    <h2>Financial aid and payment records</h2>
+                </div>
+            </div>
+            {{ document_table(payload.document_groups.scholarship) }}
+        </article>
+    </section>
+</section>
+{% endblock %}

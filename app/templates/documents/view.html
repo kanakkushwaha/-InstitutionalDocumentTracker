@@ -1,0 +1,95 @@
+{% extends 'base.html' %}
+{% block title %}View {{ document.name }}{% endblock %}
+{% block content %}
+<section class="page-panel document-view-shell">
+    <div class="section-heading">
+        <div>
+            <p class="eyebrow">Document Detail</p>
+            <h1>{{ document.name }}</h1>
+        </div>
+        <div class="document-action-row">
+            <a class="button ghost" href="{{ url_for(return_endpoint) }}">Back</a>
+            <a class="button secondary" href="{{ url_for('documents.preview_document', doc_id=document.id) }}">Preview</a>
+            <a class="button primary" href="{{ url_for('documents.download_document', doc_id=document.id) }}">Download</a>
+        </div>
+    </div>
+
+    <div class="document-view-grid">
+        <article class="glass-panel">
+            <div class="document-meta-grid">
+                <div class="detail-box">
+                    <span>Document ID</span>
+                    <strong>{{ document.id }}</strong>
+                </div>
+                <div class="detail-box">
+                    <span>Owner</span>
+                    <strong>{{ document.owner }}</strong>
+                </div>
+                <div class="detail-box">
+                    <span>Department</span>
+                    <strong>{{ document.department }}</strong>
+                </div>
+                <div class="detail-box">
+                    <span>File Type</span>
+                    <strong>{{ document.file_type }}</strong>
+                </div>
+                <div class="detail-box">
+                    <span>Submitted</span>
+                    <strong>{{ document.submitted_on }}</strong>
+                </div>
+                <div class="detail-box">
+                    <span>Status</span>
+                    <strong><span class="status-pill {{ document.status | lower }}">{{ document.status }}</span></strong>
+                </div>
+            </div>
+        </article>
+
+        <article class="glass-panel document-preview-card">
+            <p class="eyebrow">Quick View</p>
+            <h2>{{ document.file_name }}</h2>
+            {% if preview_mode == 'pdf' %}
+            <div class="preview-embed-shell compact-preview-shell">
+                <iframe class="preview-frame compact-preview-frame" src="{{ inline_preview_url }}" title="Quick preview {{ document.name }}"></iframe>
+            </div>
+            {% elif preview_mode == 'image' %}
+            <div class="preview-embed-shell compact-preview-shell image-preview-shell">
+                <img class="preview-image" src="{{ inline_preview_url }}" alt="{{ document.name }}">
+            </div>
+            {% else %}
+            <div class="preview-placeholder">
+                <span>{{ document.file_type }}</span>
+                <strong>{{ document.name }}</strong>
+                <small>Open full preview or download to inspect this file.</small>
+            </div>
+            {% endif %}
+        </article>
+    </div>
+
+    {% if can_manage %}
+    <article class="glass-panel document-manage-panel">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Manage File</p>
+                <h2>Re-upload or delete</h2>
+            </div>
+        </div>
+        {% if document.input_kind == 'file' %}
+        <form class="document-manage-row" method="post" action="{{ url_for('documents.upload_document') }}" enctype="multipart/form-data">
+            <input type="hidden" name="preset_key" value="{{ document.preset_key }}">
+            <input type="file" name="file" accept=".pdf,.png,.jpg,.jpeg,.xlsx,.xls,.docx" required>
+            <button class="button secondary" type="submit">Re-upload</button>
+        </form>
+        {% elif document.input_kind == 'link' %}
+        <form class="document-manage-row" method="post" action="{{ url_for('documents.upload_document') }}">
+            <input type="hidden" name="preset_key" value="{{ document.preset_key }}">
+            <input type="url" name="link_value" value="{{ document.value }}" required>
+            <button class="button secondary" type="submit">Update Link</button>
+        </form>
+        {% endif %}
+        <form method="post" action="{{ url_for('documents.delete_document', doc_id=document.raw_id) }}">
+            <button class="button danger" type="submit" onclick="return confirm('Delete this document?')">Delete</button>
+        </form>
+    </article>
+    {% endif %}
+</section>
+{% endblock %}

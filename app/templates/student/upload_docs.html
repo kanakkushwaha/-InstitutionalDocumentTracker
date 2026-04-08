@@ -1,0 +1,65 @@
+{% extends 'base.html' %}
+{% block title %}Upload Documents{% endblock %}
+{% block content %}
+<section class="student-upload-layout">
+    <div class="glass-panel student-upload-info">
+        <p class="eyebrow">Smart Upload Desk</p>
+        <h1>Submit documents with clarity and confidence.</h1>
+        <p>
+            Keep your placement, scholarship and academic files neatly organized. This upload section makes required
+            records easy to understand before submission.
+        </p>
+        <div class="upload-category-grid">
+            <div class="upload-category-card">
+                <strong>Academic Records</strong>
+                <span>Computer Engineering</span>
+                <small>PDF / JPG</small>
+            </div>
+            <div class="upload-category-card">
+                <strong>Placement Files</strong>
+                <span>Placement Cell</span>
+                <small>PDF</small>
+            </div>
+            <div class="upload-category-card">
+                <strong>Scholarship Files</strong>
+                <span>Scholarship Cell</span>
+                <small>PDF / JPG</small>
+            </div>
+            <div class="upload-category-card">
+                <strong>ID Proof</strong>
+                <span>Identity Verification</span>
+                <small>PDF / JPG / PNG</small>
+            </div>
+        </div>
+    </div>
+
+    <form class="glass-panel upload-form premium" method="post" action="{{ url_for('documents.upload_document') }}" enctype="multipart/form-data">
+        <div class="section-heading">
+            <div>
+                <p class="eyebrow">Upload Form</p>
+                <h2>Add New Document</h2>
+            </div>
+        </div>
+        <label>Document Title
+            <input type="text" name="title" placeholder="Semester 5 Marksheet" required>
+        </label>
+        <label>Category
+            <select name="category">
+                <option>Academic</option>
+                <option>ID Proof</option>
+                <option>Placement</option>
+                <option>Scholarship</option>
+                <option>Finance</option>
+            </select>
+        </label>
+        <label>Notes
+            <input type="text" name="notes" placeholder="Optional note for admin or teacher">
+        </label>
+        <label>Choose File
+            <input id="file-upload" type="file" name="file">
+        </label>
+        <div class="upload-preview" id="upload-preview">No file selected yet.</div>
+        <button class="button primary" type="submit">Upload Document</button>
+    </form>
+</section>
+{% endblock %}
