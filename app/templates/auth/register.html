@@ -1,17 +1,27 @@
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
+
 {% block content %}
 <section class="auth-layout">
+
     <div class="auth-info glass-panel">
         <p class="eyebrow">Registration Disabled</p>
         <h1>Signup has been removed from this portal.</h1>
-        <p>All accounts are preloaded in the database. Students should login with emails like <strong>firstname.lastname24@pccoepune.org</strong> and staff should login with emails like <strong>firstname.lastname@pccoepune.org</strong>.</p>
+        <p>
+            All accounts are preloaded in the database.
+            Students should login with student emails and staff with institutional emails.
+        </p>
     </div>
+
     <div class="auth-form glass-panel">
         <h2>Use Login Instead</h2>
         <p>Students: default password <strong>PCCOE@123</strong></p>
         <p>Staff: default password <strong>Staff@123</strong></p>
-        <a class="button primary" href="{{ url_for('auth.login') }}">Go To Login</a>
+
+        <a class="button primary" href="{{ url_for('auth.login') }}">
+            Go To Login
+        </a>
     </div>
+
 </section>
 {% endblock %}
