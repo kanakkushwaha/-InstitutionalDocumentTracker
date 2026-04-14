@@ -133,40 +133,111 @@ INSERT INTO Departments (Department_Name) VALUES
 ('Information Technology');
 
 INSERT INTO Admin (Name, Role, Email_ID, Contact_Number, Department_ID) VALUES
-('Aarav Sharma', 'System Admin', 'admin@institution.edu', '9999999999', 1);
+('Aarav Sharma', 'System Admin', 'aarav.sharma@pccoepune.org', '9999999999', 1);
 
 INSERT INTO Placement_Cell (Name, Role, Email_ID, Contact_Number, Department_ID) VALUES
-('Dr. Meera Singh', 'Placement Coordinator', 'place@institution.edu', '8888888888', 2);
+('Kabir Malhotra', 'Placement Coordinator', 'kabir.malhotra@pccoepune.org', '8888888888', 2),
+('Sonal Tambe', 'Placement Officer', 'sonal.tambe@pccoepune.org', '8888888887', 2),
+('Rahul Chitre', 'Placement Executive', 'rahul.chitre@pccoepune.org', '8888888886', 2),
+('Priya Deshmukh', 'Placement Officer', 'priya.deshmukh@pccoepune.org', '8888888885', 2),
+('Amit Ranade', 'Placement Executive', 'amit.ranade@pccoepune.org', '8888888884', 2),
+('Neha Pansare', 'Placement Officer', 'neha.pansare@pccoepune.org', '8888888883', 2),
+('Rohan Pawar', 'Placement Executive', 'rohan.pawar@pccoepune.org', '8888888882', 2),
+('Anjali Rane', 'Placement Officer', 'anjali.rane@pccoepune.org', '8888888881', 2),
+('Deepak Khedkar', 'Placement Executive', 'deepak.khedkar@pccoepune.org', '8888888870', 2),
+('Shruti Sathe', 'Placement Officer', 'shruti.sathe@pccoepune.org', '8888888869', 2),
+('Vikas Nimbalkar', 'Placement Executive', 'vikas.nimbalkar@pccoepune.org', '8888888868', 2),
+('Pallavi Mokashi', 'Placement Officer', 'pallavi.mokashi@pccoepune.org', '8888888867', 2),
+('Kiran Naik', 'Placement Executive', 'kiran.naik@pccoepune.org', '8888888866', 2),
+('Manish Bendre', 'Placement Officer', 'manish.bendre@pccoepune.org', '8888888865', 2),
+('Tanvi Bhujbal', 'Placement Executive', 'tanvi.bhujbal@pccoepune.org', '8888888864', 2),
+('Komal Bhise', 'Placement Officer', 'komal.bhise@pccoepune.org', '8888888863', 2),
+('Ajay Dhamale', 'Placement Executive', 'ajay.dhamale@pccoepune.org', '8888888862', 2),
+('Snehal Chavan', 'Placement Officer', 'snehal.chavan@pccoepune.org', '8888888861', 2),
+('Tejas Bhosale', 'Placement Executive', 'tejas.bhosale@pccoepune.org', '8888888860', 2),
+('Yash Suryawanshi', 'Placement Officer', 'yash.suryawanshi@pccoepune.org', '8888888859', 2);
 
 INSERT INTO Scholarship_Cell (Name, Role, Email_ID, Contact_Number, Department_ID) VALUES
-('Prof. Kabir Jain', 'Scholarship Coordinator', 'scholar@institution.edu', '7777777777', 3);
+('Neha Karmarkar', 'Scholarship Coordinator', 'neha.karmarkar@pccoepune.org', '7777777777', 3),
+('Priya Gokhale', 'Scholarship Officer', 'priya.gokhale@pccoepune.org', '7777777776', 3),
+('Aditi Dongre', 'Scholarship Executive', 'aditi.dongre@pccoepune.org', '7777777775', 3),
+('Rohan Thombre', 'Scholarship Officer', 'rohan.thombre@pccoepune.org', '7777777774', 3),
+('Sonal Bhadane', 'Scholarship Executive', 'sonal.bhadane@pccoepune.org', '7777777773', 3),
+('Deepak Lagad', 'Scholarship Officer', 'deepak.lagad@pccoepune.org', '7777777772', 3),
+('Shruti Karale', 'Scholarship Executive', 'shruti.karale@pccoepune.org', '7777777771', 3),
+('Aman Darade', 'Scholarship Officer', 'aman.darade@pccoepune.org', '7777777770', 3),
+('Pallavi Thorat', 'Scholarship Executive', 'pallavi.thorat@pccoepune.org', '7777777769', 3),
+('Rakesh Chorge', 'Scholarship Officer', 'rakesh.chorge@pccoepune.org', '7777777768', 3),
+('Snehal Hole', 'Scholarship Executive', 'snehal.hole@pccoepune.org', '7777777767', 3),
+('Komal Madne', 'Scholarship Officer', 'komal.madne@pccoepune.org', '7777777766', 3),
+('Tejas Khaire', 'Scholarship Executive', 'tejas.khaire@pccoepune.org', '7777777765', 3),
+('Yash Gedam', 'Scholarship Officer', 'yash.gedam@pccoepune.org', '7777777764', 3),
+('Kunal Pethkar', 'Scholarship Executive', 'kunal.pethkar@pccoepune.org', '7777777763', 3),
+('Megha Raut', 'Scholarship Officer', 'megha.raut@pccoepune.org', '7777777762', 3),
+('Tanvi Ingle', 'Scholarship Executive', 'tanvi.ingle@pccoepune.org', '7777777761', 3),
+('Vikas Nale', 'Scholarship Officer', 'vikas.nale@pccoepune.org', '7777777760', 3),
+('Anjali Khese', 'Scholarship Executive', 'anjali.khese@pccoepune.org', '7777777759', 3),
+('Akash Kharat', 'Scholarship Officer', 'akash.kharat@pccoepune.org', '7777777758', 3);
 
 INSERT INTO Students (PRN, Name, Class, Email_ID, Contact_Number, Department_ID, Current_Year, Password) VALUES
-('2022CE041', 'Riya Patel', 'BE Computer', 'student@institution.edu', '9898989898', 1, '4th Year BTech', 'student123'),
-('2023IT018', 'Aditya Nair', 'TE IT', 'aditya@institution.edu', '9870011223', 4, '3rd Year BTech', 'student234'),
-('2024CE052', 'Sneha Deshmukh', 'SE Computer', 'sneha@institution.edu', '9870011224', 1, '2nd Year BTech', 'student345'),
-('124B1F100', 'Sharvari', 'SY', 's@gmail.com', '1111111111', 4, '2nd Year BTech', 'pass100'),
-('124B1F101', 'Anita', 'SY', 'a@gmail.com', '2222222222', 4, '2nd Year BTech', 'pass101'),
-('124B1F102', 'Rahul', 'TY', 'r@gmail.com', '3333333333', 1, '3rd Year BTech', 'pass102'),
-('124B1F103', 'Aman', 'SY', 'aman@gmail.com', '4444444444', 4, '2nd Year BTech', 'pass103');
+('124B1F095', 'Kanak Kushwaha', 'SY', 'kanak.kushwaha24@pccoepune.org', '9800000001', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F096', 'Aarohi Patil', 'SY', 'aarohi.patil24@pccoepune.org', '9800000002', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F097', 'Vivaan Shah', 'SY', 'vivaan.shah24@pccoepune.org', '9800000003', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F098', 'Ishita Nair', 'SY', 'ishita.nair24@pccoepune.org', '9800000004', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F099', 'Parth Jadhav', 'SY', 'parth.jadhav24@pccoepune.org', '9800000005', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F100', 'Nehal More', 'SY', 'nehal.more24@pccoepune.org', '9800000006', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F101', 'Pranav Joshi', 'SY', 'pranav.joshi24@pccoepune.org', '9800000007', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F102', 'Diya Sharma', 'SY', 'diya.sharma24@pccoepune.org', '9800000008', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F103', 'Saket Verma', 'SY', 'saket.verma24@pccoepune.org', '9800000009', 1, '2nd Year BTech', 'PCCOE@123'),
+('124B1F104', 'Anvi Gupta', 'SY', 'anvi.gupta24@pccoepune.org', '9800000010', 1, '2nd Year BTech', 'PCCOE@123'),
+('123B1F105', 'Kunal Patwardhan', 'TY', 'kunal.patwardhan23@pccoepune.org', '9800000011', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F106', 'Riya Patel', 'TY', 'riya.patel23@pccoepune.org', '9800000012', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F107', 'Aditya Nair', 'TY', 'aditya.nair23@pccoepune.org', '9800000013', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F108', 'Sneha Deshmukh', 'TY', 'sneha.deshmukh23@pccoepune.org', '9800000014', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F109', 'Rahul Shinde', 'TY', 'rahul.shinde23@pccoepune.org', '9800000015', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F110', 'Aman Kulkarni', 'TY', 'aman.kulkarni23@pccoepune.org', '9800000016', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F111', 'Sharvari Pawar', 'TY', 'sharvari.pawar23@pccoepune.org', '9800000017', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F112', 'Tanmay Desai', 'TY', 'tanmay.desai23@pccoepune.org', '9800000018', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F113', 'Mitali Bhosale', 'TY', 'mitali.bhosale23@pccoepune.org', '9800000019', 1, '3rd Year BTech', 'PCCOE@123'),
+('123B1F114', 'Yash Khanna', 'TY', 'yash.khanna23@pccoepune.org', '9800000020', 1, '3rd Year BTech', 'PCCOE@123'),
+('124B1I115', 'Tanvi Kulkarni', 'SY', 'tanvi.kulkarni24@pccoepune.org', '9800000021', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I116', 'Rudra Sawant', 'SY', 'rudra.sawant24@pccoepune.org', '9800000022', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I117', 'Mitali Shinde', 'SY', 'mitali.shinde24@pccoepune.org', '9800000023', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I118', 'Harsh Desai', 'SY', 'harsh.desai24@pccoepune.org', '9800000024', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I119', 'Kashish Yadav', 'SY', 'kashish.yadav24@pccoepune.org', '9800000025', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I120', 'Rhea Naidu', 'SY', 'rhea.naidu24@pccoepune.org', '9800000026', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I121', 'Atharv Kale', 'SY', 'atharv.kale24@pccoepune.org', '9800000027', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I122', 'Pallavi Mane', 'SY', 'pallavi.mane24@pccoepune.org', '9800000028', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I123', 'Saanvi Salunke', 'SY', 'saanvi.salunke24@pccoepune.org', '9800000029', 4, '2nd Year BTech', 'PCCOE@123'),
+('124B1I124', 'Om Chavan', 'SY', 'om.chavan24@pccoepune.org', '9800000030', 4, '2nd Year BTech', 'PCCOE@123'),
+('123B1I125', 'Vedant Shirole', 'TY', 'vedant.shirole23@pccoepune.org', '9800000031', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I126', 'Gauri Pathak', 'TY', 'gauri.pathak23@pccoepune.org', '9800000032', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I127', 'Aryan Jain', 'TY', 'aryan.jain23@pccoepune.org', '9800000033', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I128', 'Khushi Mehta', 'TY', 'khushi.mehta23@pccoepune.org', '9800000034', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I129', 'Soham Pinge', 'TY', 'soham.pinge23@pccoepune.org', '9800000035', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I130', 'Prajakta Lokhande', 'TY', 'prajakta.lokhande23@pccoepune.org', '9800000036', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I131', 'Tushar Gite', 'TY', 'tushar.gite23@pccoepune.org', '9800000037', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I132', 'Nikita Gaikwad', 'TY', 'nikita.gaikwad23@pccoepune.org', '9800000038', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I133', 'Swaraj Mohite', 'TY', 'swaraj.mohite23@pccoepune.org', '9800000039', 4, '3rd Year BTech', 'PCCOE@123'),
+('123B1I134', 'Mrunal Jagtap', 'TY', 'mrunal.jagtap23@pccoepune.org', '9800000040', 4, '3rd Year BTech', 'PCCOE@123');
 
 INSERT INTO Teachers (Name, Email_ID, Contact_Number, Department_ID, Role, Password) VALUES
-('Dr. Meera Singh', 'teacher@institution.edu', '5555555555', 2, 'Teacher', 'teacher123'),
-('Prof. B', 'b@college.com', '6666666666', 1, 'Teacher', 'teacher234');
+('Prof. Meera Singh', 'meera.singh@pccoepune.org', '5555555555', 1, 'Teacher', 'Staff@123'),
+('Prof. Kabir Jain', 'kabir.jain@pccoepune.org', '6666666666', 4, 'Teacher', 'Staff@123');
 
 INSERT INTO Documents
     (Document_Name, Document_Type, Upload_Date, Category, Department_ID, Status, Review_Message, Uploaded_By_PRN, Uploaded_By_TeacherID)
 VALUES
-('10th Marksheet', 'PDF', CURDATE(), 'Academic', 1, 'Approved', 'Verified and matched with admission records.', '2022CE041', NULL),
-('12th Marksheet', 'PDF', CURDATE(), 'Academic', 1, 'Pending', 'Upload a clearer scan with visible board stamp.', '2022CE041', NULL),
-('Leaving Certificate', 'PDF', CURDATE(), 'Academic', 1, 'Approved', 'Accepted by the admin office.', '2022CE041', NULL),
-('Semester 5 Marksheet', 'PDF', CURDATE(), 'Academic', 1, 'Approved', 'Verified by academic office.', '2022CE041', NULL),
-('Aadhaar Card', 'PDF', CURDATE(), 'ID Proof', 1, 'Approved', 'Identity proof accepted.', '2022CE041', NULL),
-('Placement Resume', 'PDF', CURDATE(), 'Placement', 2, 'Pending', 'Please update your resume headline and skills section.', '2022CE041', NULL),
-('GitHub Profile Link', 'LINK', CURDATE(), 'Placement', 2, 'Approved', 'Profile reviewed and accepted by placement mentor.', '2022CE041', NULL),
-('LinkedIn Profile Link', 'LINK', CURDATE(), 'Placement', 2, 'Pending', 'Please add headline, skills and latest projects before final review.', '2022CE041', NULL),
-('Scholarship Form', 'PDF', CURDATE(), 'Scholarship', 3, 'Pending', 'Fee receipt still under verification.', '2022CE041', NULL),
-('Fee Receipt', 'JPG', CURDATE(), 'Finance', 3, 'Approved', 'Payment proof confirmed.', '2022CE041', NULL),
+('10th Marksheet', 'PDF', CURDATE(), 'Academic', 1, 'Approved', 'Verified and matched with admission records.', '124B1F095', NULL),
+('12th Marksheet', 'PDF', CURDATE(), 'Academic', 1, 'Pending', 'Upload a clearer scan with visible board stamp.', '124B1F095', NULL),
+('Leaving Certificate', 'PDF', CURDATE(), 'Academic', 1, 'Approved', 'Accepted by the admin office.', '124B1F095', NULL),
+('Semester 5 Marksheet', 'PDF', CURDATE(), 'Academic', 1, 'Approved', 'Verified by academic office.', '123B1F106', NULL),
+('Aadhaar Card', 'PDF', CURDATE(), 'ID Proof', 1, 'Approved', 'Identity proof accepted.', '124B1F095', NULL),
+('Placement Resume', 'PDF', CURDATE(), 'Placement', 2, 'Pending', 'Please update your resume headline and skills section.', '123B1F106', NULL),
+('GitHub Profile Link', 'LINK', CURDATE(), 'Placement', 2, 'Approved', 'Profile reviewed and accepted by placement mentor.', '123B1F106', NULL),
+('LinkedIn Profile Link', 'LINK', CURDATE(), 'Placement', 2, 'Pending', 'Please add headline, skills and latest projects before final review.', '123B1F106', NULL),
+('Scholarship Form', 'PDF', CURDATE(), 'Scholarship', 3, 'Pending', 'Fee receipt still under verification.', '124B1I120', NULL),
+('Fee Receipt', 'JPG', CURDATE(), 'Finance', 3, 'Approved', 'Payment proof confirmed.', '124B1I120', NULL),
 ('OfferLetter', 'PDF', CURDATE(), 'Placement', 2, 'Pending', 'Add company seal and signed page.', '124B1F101', NULL),
 ('Resume', 'PDF', CURDATE(), 'Placement', 2, 'Approved', 'Resume accepted.', '124B1F100', NULL),
 ('Marksheet', 'PDF', CURDATE(), 'Academic', 4, 'Approved', 'Academic verification complete.', '124B1F100', NULL),
@@ -174,9 +245,9 @@ VALUES
 ('Attendance Sheet', 'PDF', CURDATE(), 'Academic', 1, 'Pending', 'Upload latest monthly attendance.', NULL, 1);
 
 INSERT INTO Notifications (PRN, Document_ID, Message) VALUES
-('2022CE041', 2, 'Upload a clearer scan with visible board stamp.'),
-('2022CE041', 6, 'Please update your resume headline and skills section.'),
-('2022CE041', 9, 'Fee receipt still under verification.');
+('124B1F095', 2, 'Upload a clearer scan with visible board stamp.'),
+('123B1F106', 6, 'Please update your resume headline and skills section.'),
+('124B1I120', 9, 'Fee receipt still under verification.');
 
 -- =========================================
 -- DML QUERIES
@@ -205,7 +276,7 @@ SELECT MAX(PRN) AS Highest_PRN FROM Students;
 
 -- 8. INSERT a new student
 INSERT INTO Students (PRN, Name, Class, Email_ID, Contact_Number, Department_ID, Current_Year, Password)
-VALUES ('124B1F200', 'TestUser', 'SY', 'test@gmail.com', '9999999990', 1, '2nd Year BTech', 'test123');
+VALUES ('124B1F200', 'Test User', 'SY', 'test.user24@pccoepune.org', '9999999990', 1, '2nd Year BTech', 'PCCOE@123');
 
 -- 9. INSERT a new document
 INSERT INTO Documents (Document_Name, Document_Type, Upload_Date, Category, Department_ID, Status, Review_Message, Uploaded_By_PRN, Uploaded_By_TeacherID)
@@ -444,13 +515,10 @@ SELECT * FROM Audit_Log;
 
 SELECT * 
 FROM users
-WHERE email = 'kanak@institution.edu';
+WHERE email = 'kanak.kushwaha24@pccoepune.org';
 
 USE institutional_tracker_live;
 
 SELECT * 
 FROM users
 ORDER BY id DESC;
-
-
-

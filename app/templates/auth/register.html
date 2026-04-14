@@ -3,47 +3,15 @@
 {% block content %}
 <section class="auth-layout">
     <div class="auth-info glass-panel">
-        <p class="eyebrow">Structured Onboarding</p>
-        <h1>Create the UI flow for students, teachers, admin and cell teams.</h1>
-        <p>Use role-specific email and password patterns so every new user signs in to the correct dedicated dashboard.</p>
-        <div class="demo-credentials">
-            <div><strong>Student:</strong> {{ role_examples.student.email }} / {{ role_examples.student.password }}</div>
-            <div><strong>Teacher:</strong> {{ role_examples.teacher.email }} / {{ role_examples.teacher.password }}</div>
-            <div><strong>Admin:</strong> {{ role_examples.admin.email }} / {{ role_examples.admin.password }}</div>
-            <div><strong>Placement Cell:</strong> {{ role_examples.placement.email }} / {{ role_examples.placement.password }}</div>
-            <div><strong>Scholarship Cell:</strong> {{ role_examples.scholarship.email }} / {{ role_examples.scholarship.password }}</div>
-        </div>
+        <p class="eyebrow">Registration Disabled</p>
+        <h1>Signup has been removed from this portal.</h1>
+        <p>All accounts are preloaded in the database. Students should login with emails like <strong>firstname.lastname24@pccoepune.org</strong> and staff should login with emails like <strong>firstname.lastname@pccoepune.org</strong>.</p>
     </div>
-    <form class="auth-form glass-panel" method="post">
-        <h2>Register User</h2>
-        <label>Full Name
-            <input type="text" name="name" placeholder="Enter full name" required>
-        </label>
-        <label>Email
-            <input type="email" name="email" placeholder="student.2025ce001@institution.edu" required>
-        </label>
-        <label>Role
-            <select name="role" required>
-                <option value="student">Student</option>
-                <option value="teacher">Teacher</option>
-                <option value="admin">Admin</option>
-                <option value="placement">Placement Cell</option>
-                <option value="scholarship">Scholarship Cell</option>
-            </select>
-        </label>
-        <label>Password
-            <input type="password" name="password" placeholder="stu-2025ce001 / teach-meera1 / admin-aarav1 / place-kabir1" required>
-        </label>
-        <label>Department
-            <input type="text" name="department" placeholder="Computer Engineering">
-        </label>
-        <label>Contact Number
-            <input type="text" name="contact_number" placeholder="Enter contact number">
-        </label>
-        <label>PRN
-            <input type="text" name="prn" placeholder="Only required for students">
-        </label>
-        <button class="button primary" type="submit">Create Account</button>
-    </form>
+    <div class="auth-form glass-panel">
+        <h2>Use Login Instead</h2>
+        <p>Students: default password <strong>PCCOE@123</strong></p>
+        <p>Staff: default password <strong>Staff@123</strong></p>
+        <a class="button primary" href="{{ url_for('auth.login') }}">Go To Login</a>
+    </div>
 </section>
 {% endblock %}

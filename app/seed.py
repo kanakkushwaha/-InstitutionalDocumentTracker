@@ -2,164 +2,234 @@ from pathlib import Path
 
 from app import db
 from app.models import Department, Document, User
-from app.workbench_sync import ensure_workbench_tables, reset_workbench_sync_cache, sync_workbench_user
+from app.workbench_sync import ensure_workbench_tables, prune_workbench_users, reset_workbench_sync_cache, sync_workbench_user
 
-STUDENT_ACCOUNT_DATA = [
-    ("Aarohi Patil", "student.2025ce001@institution.edu", "stu-2025ce001", "2025CE001", "Computer Engineering"),
-    ("Vivaan Shah", "student.2025ce002@institution.edu", "stu-2025ce002", "2025CE002", "Computer Engineering"),
-    ("Ishita Nair", "student.2025ce003@institution.edu", "stu-2025ce003", "2025CE003", "Computer Engineering"),
-    ("Parth Jadhav", "student.2025ce004@institution.edu", "stu-2025ce004", "2025CE004", "Computer Engineering"),
-    ("Nehal More", "student.2025ce005@institution.edu", "stu-2025ce005", "2025CE005", "Computer Engineering"),
-    ("Tanvi Kulkarni", "student.2025it006@institution.edu", "stu-2025it006", "2025IT006", "Information Technology"),
-    ("Rudra Sawant", "student.2025it007@institution.edu", "stu-2025it007", "2025IT007", "Information Technology"),
-    ("Mitali Shinde", "student.2025it008@institution.edu", "stu-2025it008", "2025IT008", "Information Technology"),
-    ("Harsh Desai", "student.2025it009@institution.edu", "stu-2025it009", "2025IT009", "Information Technology"),
-    ("Kashish Yadav", "student.2025it010@institution.edu", "stu-2025it010", "2025IT010", "Information Technology"),
-    ("Pranav Joshi", "student.2024ce011@institution.edu", "stu-2024ce011", "2024CE011", "Computer Engineering"),
-    ("Diya Sharma", "student.2024ce012@institution.edu", "stu-2024ce012", "2024CE012", "Computer Engineering"),
-    ("Saket Verma", "student.2024ce013@institution.edu", "stu-2024ce013", "2024CE013", "Computer Engineering"),
-    ("Anvi Gupta", "student.2024ce014@institution.edu", "stu-2024ce014", "2024CE014", "Computer Engineering"),
-    ("Kunal Patwardhan", "student.2024ce015@institution.edu", "stu-2024ce015", "2024CE015", "Computer Engineering"),
-    ("Rhea Naidu", "student.2024it016@institution.edu", "stu-2024it016", "2024IT016", "Information Technology"),
-    ("Atharv Kale", "student.2024it017@institution.edu", "stu-2024it017", "2024IT017", "Information Technology"),
-    ("Pallavi Mane", "student.2024it018@institution.edu", "stu-2024it018", "2024IT018", "Information Technology"),
-    ("Yash Khanna", "student.2024it019@institution.edu", "stu-2024it019", "2024IT019", "Information Technology"),
-    ("Saanvi Salunke", "student.2024it020@institution.edu", "stu-2024it020", "2024IT020", "Information Technology"),
+DEFAULT_STUDENT_PASSWORD = "PCCOE@123"
+DEFAULT_STAFF_PASSWORD = "Staff@123"
+
+ACADEMIC_DEPARTMENTS = [
+    {"name": "Civil Engineering", "code": "A", "contact_email": "civil@pccoepune.org"},
+    {"name": "Computer Engineering", "code": "B", "contact_email": "comp@pccoepune.org"},
+    {"name": "AIML", "code": "C", "contact_email": "aiml@pccoepune.org"},
+    {"name": "Computer Engineering Regional", "code": "D", "contact_email": "comp.regional@pccoepune.org"},
+    {"name": "ENTC", "code": "E", "contact_email": "entc@pccoepune.org"},
+    {"name": "Information Technology", "code": "F", "contact_email": "it@pccoepune.org"},
+    {"name": "Mechanical Engineering", "code": "G", "contact_email": "mech@pccoepune.org"},
 ]
 
-TEACHER_ACCOUNT_DATA = [
-    "meera",
-    "kabir",
-    "anjali",
-    "rohan",
-    "nisha",
-    "arpit",
-    "sonal",
-    "vikram",
-    "neha",
-    "rahul",
-    "priya",
-    "abhay",
-    "pooja",
-    "samir",
-    "kiran",
-    "monal",
-    "deepak",
-    "shruti",
-    "amit",
-    "rutuja",
+STUDENT_FIRST_NAMES = [
+    "Kanak", "Aarohi", "Vivaan", "Ishita", "Parth", "Nehal", "Pranav", "Diya", "Saket", "Anvi",
+    "Kunal", "Riya", "Aditya", "Sneha", "Rahul", "Aman", "Sharvari", "Tanmay", "Mitali", "Yash",
+]
+
+STUDENT_LAST_NAMES = [
+    "Kushwaha", "Patil", "Shah", "Nair", "Jadhav", "More", "Joshi", "Sharma", "Verma", "Gupta",
+    "Patwardhan", "Pawar", "Deshmukh", "Shinde", "Kulkarni", "Desai", "Bhosale", "Khanna", "Sawant",
+    "Mane", "Naidu",
+]
+
+TEACHER_FIRST_NAMES = [
+    "Meera", "Kabir", "Anjali", "Rohan", "Nisha", "Arpit", "Sonal", "Vikram", "Neha", "Rahul",
+    "Priya", "Abhay", "Pooja", "Samir", "Kiran", "Monal", "Deepak", "Shruti", "Amit", "Rutuja",
+]
+
+TEACHER_LAST_NAMES = [
+    "Singh", "Jain", "Patil", "Deshmukh", "Kulkarni", "Shah", "Verma", "More", "Joshi", "Pawar",
+    "Nair", "Gupta", "Shinde", "Patwardhan", "Bhosale", "Chavan", "Kale", "Mane", "Jadhav",
+    "Sawant", "Apte",
 ]
 
 ADMIN_ACCOUNT_DATA = [
-    "aarav",
-    "kanak",
-    "riya",
-    "aditya",
-    "sneha",
-    "rohit",
-    "pooja",
-    "neha",
-    "vishal",
-    "anjali",
-    "kabir",
-    "meera",
-    "rohan",
-    "sonal",
-    "abhay",
-    "priya",
-    "shruti",
-    "deepak",
-    "rutuja",
-    "amit",
+    "Aarav Sharma",
+    "Riya Patel",
+    "Aditya Nair",
+    "Sneha Deshmukh",
+    "Rohit Verma",
+    "Poonam Shinde",
+    "Kanika Apte",
+    "Vishal Kulkarni",
+    "Devansh Rao",
+    "Simran Kapoor",
 ]
 
 PLACEMENT_ACCOUNT_DATA = [
-    ("Kabir Malhotra", "placement.kabir@institution.edu", "place-kabir1"),
-    ("Sonal Verma", "placement.sonal@institution.edu", "place-sonal1"),
+    ("Kabir Malhotra", "kabir.malhotra@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Sonal Tambe", "sonal.tambe@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Rahul Chitre", "rahul.chitre@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Priya Deshmukh", "priya.deshmukh@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Amit Ranade", "amit.ranade@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Neha Pansare", "neha.pansare@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Rohan Pawar", "rohan.pawar@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Anjali Rane", "anjali.rane@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Deepak Khedkar", "deepak.khedkar@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Shruti Sathe", "shruti.sathe@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Vikas Nimbalkar", "vikas.nimbalkar@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Pallavi Mokashi", "pallavi.mokashi@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Kiran Naik", "kiran.naik@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Manish Bendre", "manish.bendre@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Tanvi Bhujbal", "tanvi.bhujbal@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Komal Bhise", "komal.bhise@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Ajay Dhamale", "ajay.dhamale@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Snehal Chavan", "snehal.chavan@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Tejas Bhosale", "tejas.bhosale@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Yash Suryawanshi", "yash.suryawanshi@pccoepune.org", DEFAULT_STAFF_PASSWORD),
 ]
 
 SCHOLARSHIP_ACCOUNT_DATA = [
-    ("Neha Joshi", "scholarship.neha@institution.edu", "schol-neha1"),
-    ("Priya Nair", "scholarship.priya@institution.edu", "schol-priya1"),
+    ("Neha Karmarkar", "neha.karmarkar@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Priya Gokhale", "priya.gokhale@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Aditi Dongre", "aditi.dongre@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Rohan Thombre", "rohan.thombre@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Sonal Bhadane", "sonal.bhadane@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Deepak Lagad", "deepak.lagad@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Shruti Karale", "shruti.karale@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Aman Darade", "aman.darade@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Pallavi Thorat", "pallavi.thorat@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Rakesh Chorge", "rakesh.chorge@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Snehal Hole", "snehal.hole@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Komal Madne", "komal.madne@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Tejas Khaire", "tejas.khaire@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Yash Gedam", "yash.gedam@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Kunal Pethkar", "kunal.pethkar@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Megha Raut", "megha.raut@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Tanvi Ingle", "tanvi.ingle@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Vikas Nale", "vikas.nale@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Anjali Khese", "anjali.khese@pccoepune.org", DEFAULT_STAFF_PASSWORD),
+    ("Akash Kharat", "akash.kharat@pccoepune.org", DEFAULT_STAFF_PASSWORD),
 ]
 
 SEED_DEPARTMENTS = [
-    {
-        "name": "Computer Engineering",
-        "category": "Academic",
-        "contact_email": "ce@institution.edu",
-        "contact_number": "9876543210",
-    },
-    {
-        "name": "Information Technology",
-        "category": "Academic",
-        "contact_email": "it@institution.edu",
-        "contact_number": "9876543211",
-    },
+    *[
+        {
+            "name": department["name"],
+            "category": "Academic",
+            "contact_email": department["contact_email"],
+            "contact_number": f"98765432{index:02d}",
+        }
+        for index, department in enumerate(ACADEMIC_DEPARTMENTS, start=10)
+    ],
     {
         "name": "Placement Cell",
         "category": "Placement",
-        "contact_email": "placement@institution.edu",
+        "contact_email": "placement@pccoepune.org",
         "contact_number": "9820012345",
     },
     {
         "name": "Scholarship Cell",
         "category": "Scholarship",
-        "contact_email": "scholarship@institution.edu",
+        "contact_email": "scholarship@pccoepune.org",
         "contact_number": "9833301122",
     },
     {
         "name": "Administration",
         "category": "Administrative",
-        "contact_email": "admin.office@institution.edu",
+        "contact_email": "admin.office@pccoepune.org",
         "contact_number": "9811101101",
     },
 ]
 
 
-def _format_name(name):
-    return " ".join(part.capitalize() for part in name.split("."))
+def _slugify_name(name):
+    return ".".join(part.lower() for part in name.split() if part)
 
 
 def _contact_number(seed_number):
     return f"98{seed_number:08d}"
 
 
+def _student_email(first_name, last_name, admission_suffix):
+    return f"{first_name.lower()}.{last_name.lower()}{admission_suffix}@pccoepune.org"
+
+
+def _student_prn(admission_suffix, department_code, serial_number):
+    return f"1{admission_suffix}B1{department_code}{serial_number:03d}"
+
+
+def _student_class_and_year(admission_suffix):
+    admission_year = 2000 + int(admission_suffix)
+    current_year = 2026
+    year_no = max(1, min(current_year - admission_year, 4))
+    year_labels = {
+        1: ("FY", "1st Year BTech"),
+        2: ("SY", "2nd Year BTech"),
+        3: ("TY", "3rd Year BTech"),
+        4: ("BE", "4th Year BTech"),
+    }
+    return year_labels[year_no]
+
+
+def _build_unique_name(index, first_names, last_names):
+    first_name = first_names[index % len(first_names)]
+    last_name = last_names[index % len(last_names)]
+    return first_name, last_name
+
+
+def _build_student_accounts():
+    students = []
+    for dept_index, department in enumerate(ACADEMIC_DEPARTMENTS):
+        for position in range(20):
+            global_index = dept_index * 20 + position
+            first_name, last_name = _build_unique_name(global_index, STUDENT_FIRST_NAMES, STUDENT_LAST_NAMES)
+            admission_suffix = "24" if position < 10 else "23"
+            class_name, current_year = _student_class_and_year(admission_suffix)
+            serial_number = 95 + position
+            students.append(
+                {
+                    "name": f"{first_name} {last_name}",
+                    "email": _student_email(first_name, last_name, admission_suffix),
+                    "password": DEFAULT_STUDENT_PASSWORD,
+                    "role": "student",
+                    "department": department["name"],
+                    "prn": _student_prn(admission_suffix, department["code"], serial_number),
+                    "contact_number": _contact_number(global_index + 1),
+                    "class_name": class_name,
+                    "current_year": current_year,
+                }
+            )
+    return students
+
+
+def _build_teacher_accounts():
+    teachers = []
+    for dept_index, department in enumerate(ACADEMIC_DEPARTMENTS):
+        for position in range(20):
+            global_index = dept_index * 20 + position
+            first_name, last_name = _build_unique_name(global_index, TEACHER_FIRST_NAMES, TEACHER_LAST_NAMES)
+            full_name = f"{first_name} {last_name}"
+            teachers.append(
+                {
+                    "name": f"Prof. {full_name}",
+                    "email": f"{_slugify_name(full_name)}@pccoepune.org",
+                    "password": DEFAULT_STAFF_PASSWORD,
+                    "role": "teacher",
+                    "department": department["name"],
+                    "contact_number": _contact_number(101 + global_index),
+                }
+            )
+    return teachers
+
+
+STUDENT_ACCOUNT_DATA = _build_student_accounts()
+TEACHER_ACCOUNT_DATA = _build_teacher_accounts()
+
+
+def _find_student_email(department_name, position):
+    matching_students = [student for student in STUDENT_ACCOUNT_DATA if student["department"] == department_name]
+    return matching_students[position]["email"]
+
+
 def _build_seed_users():
     users = []
 
-    for index, (name, email, password, prn, department) in enumerate(STUDENT_ACCOUNT_DATA, start=1):
-        users.append(
-            {
-                "name": name,
-                "email": email,
-                "password": password,
-                "role": "student",
-                "department": department,
-                "prn": prn,
-                "contact_number": _contact_number(index),
-            }
-        )
-
-    for index, name in enumerate(TEACHER_ACCOUNT_DATA, start=101):
-        department = "Computer Engineering" if index % 2 else "Information Technology"
-        users.append(
-            {
-                "name": f"Prof. {_format_name(name)}",
-                "email": f"teacher.{name}@institution.edu",
-                "password": f"teach-{name}1",
-                "role": "teacher",
-                "department": department,
-                "contact_number": _contact_number(index),
-            }
-        )
+    users.extend(STUDENT_ACCOUNT_DATA)
+    users.extend(TEACHER_ACCOUNT_DATA)
 
     for index, name in enumerate(ADMIN_ACCOUNT_DATA, start=201):
         users.append(
             {
-                "name": f"{_format_name(name)} Admin",
-                "email": f"admin.{name}@institution.edu",
-                "password": f"admin-{name}1",
+                "name": name,
+                "email": f"{_slugify_name(name)}@pccoepune.org",
+                "password": DEFAULT_STAFF_PASSWORD,
                 "role": "admin",
                 "department": "Administration",
                 "contact_number": _contact_number(index),
@@ -193,14 +263,18 @@ def _build_seed_users():
     return users
 
 
+PRIMARY_COMP_STUDENT_EMAIL = _find_student_email("Computer Engineering", 0)
+PLACEMENT_SAMPLE_STUDENT_EMAIL = _find_student_email("Computer Engineering", 11)
+SCHOLARSHIP_SAMPLE_STUDENT_EMAIL = _find_student_email("Information Technology", 5)
+
 SEED_USERS = _build_seed_users()
 
 LOGIN_DEMO_USERS = [
-    {"role": "student", "email": "student.2025ce001@institution.edu", "password": "stu-2025ce001"},
-    {"role": "teacher", "email": "teacher.meera@institution.edu", "password": "teach-meera1"},
-    {"role": "admin", "email": "admin.aarav@institution.edu", "password": "admin-aarav1"},
-    {"role": "placement", "email": "placement.kabir@institution.edu", "password": "place-kabir1"},
-    {"role": "scholarship", "email": "scholarship.neha@institution.edu", "password": "schol-neha1"},
+    {"role": "student", "email": PRIMARY_COMP_STUDENT_EMAIL, "password": DEFAULT_STUDENT_PASSWORD},
+    {"role": "teacher", "email": "meera.singh@pccoepune.org", "password": DEFAULT_STAFF_PASSWORD},
+    {"role": "admin", "email": "aarav.sharma@pccoepune.org", "password": DEFAULT_STAFF_PASSWORD},
+    {"role": "placement", "email": "kabir.malhotra@pccoepune.org", "password": DEFAULT_STAFF_PASSWORD},
+    {"role": "scholarship", "email": "neha.karmarkar@pccoepune.org", "password": DEFAULT_STAFF_PASSWORD},
 ]
 
 SEED_DOCUMENTS = [
@@ -211,7 +285,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Secondary school marksheet for educational record verification.",
         "status": "Approved",
-        "owner_email": "student.2025ce001@institution.edu",
+        "owner_email": PRIMARY_COMP_STUDENT_EMAIL,
         "department": "Computer Engineering",
         "remarks": "Verified and matched with admission records.",
     },
@@ -222,7 +296,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Higher secondary marksheet required for student profile completion.",
         "status": "Pending",
-        "owner_email": "student.2025ce001@institution.edu",
+        "owner_email": PRIMARY_COMP_STUDENT_EMAIL,
         "department": "Computer Engineering",
         "remarks": "Upload a clearer scan with visible board stamp.",
     },
@@ -233,7 +307,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Leaving certificate for previous institution transfer record.",
         "status": "Approved",
-        "owner_email": "student.2025ce001@institution.edu",
+        "owner_email": PRIMARY_COMP_STUDENT_EMAIL,
         "department": "Computer Engineering",
         "remarks": "Accepted by the admin office.",
     },
@@ -244,7 +318,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Semester marksheet with SGPA, subject grades and academic stamp.",
         "status": "Approved",
-        "owner_email": "student.2024ce011@institution.edu",
+        "owner_email": PLACEMENT_SAMPLE_STUDENT_EMAIL,
         "department": "Computer Engineering",
         "remarks": "Verified by academic office.",
     },
@@ -255,7 +329,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Government identity document uploaded for verification and record linking.",
         "status": "Approved",
-        "owner_email": "student.2025ce001@institution.edu",
+        "owner_email": PRIMARY_COMP_STUDENT_EMAIL,
         "department": "Computer Engineering",
         "remarks": "Identity proof accepted.",
     },
@@ -266,7 +340,7 @@ SEED_DOCUMENTS = [
         "file_type": "PNG",
         "description": "Current college identity card for campus verification.",
         "status": "Approved",
-        "owner_email": "student.2025ce001@institution.edu",
+        "owner_email": PRIMARY_COMP_STUDENT_EMAIL,
         "department": "Computer Engineering",
         "remarks": "Card image verified successfully.",
     },
@@ -277,7 +351,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "PAN card used for scholarship and financial verification.",
         "status": "Pending",
-        "owner_email": "student.2024it016@institution.edu",
+        "owner_email": SCHOLARSHIP_SAMPLE_STUDENT_EMAIL,
         "department": "Scholarship Cell",
         "remarks": "Please upload the front side in better resolution.",
     },
@@ -288,7 +362,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Resume for campus placement drives with projects, skills and internships.",
         "status": "Pending",
-        "owner_email": "student.2024ce011@institution.edu",
+        "owner_email": PLACEMENT_SAMPLE_STUDENT_EMAIL,
         "department": "Placement Cell",
         "remarks": "Awaiting placement cell review.",
     },
@@ -299,7 +373,7 @@ SEED_DOCUMENTS = [
         "file_type": "LINK",
         "description": "GitHub profile link to showcase repositories and coding work.",
         "status": "Approved",
-        "owner_email": "student.2024ce011@institution.edu",
+        "owner_email": PLACEMENT_SAMPLE_STUDENT_EMAIL,
         "department": "Placement Cell",
         "remarks": "Profile reviewed and accepted by placement mentor.",
         "file_path_override": "https://github.com/riya-patel-dev",
@@ -311,7 +385,7 @@ SEED_DOCUMENTS = [
         "file_type": "LINK",
         "description": "LinkedIn profile link for placement communication and recruiter outreach.",
         "status": "Pending",
-        "owner_email": "student.2024ce011@institution.edu",
+        "owner_email": PLACEMENT_SAMPLE_STUDENT_EMAIL,
         "department": "Placement Cell",
         "remarks": "Please add headline, skills and latest projects before final review.",
         "file_path_override": "https://www.linkedin.com/in/riya-patel-dev",
@@ -323,7 +397,7 @@ SEED_DOCUMENTS = [
         "file_type": "LINK",
         "description": "Portfolio or other professional link for placement evaluation.",
         "status": "Pending",
-        "owner_email": "student.2024ce011@institution.edu",
+        "owner_email": PLACEMENT_SAMPLE_STUDENT_EMAIL,
         "department": "Placement Cell",
         "remarks": "Portfolio can be added with project screenshots and contact section.",
         "file_path_override": "https://riya-patel-portfolio.example.com",
@@ -335,7 +409,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Internship or placement offer letter for placement cell record.",
         "status": "Pending",
-        "owner_email": "student.2024ce011@institution.edu",
+        "owner_email": PLACEMENT_SAMPLE_STUDENT_EMAIL,
         "department": "Placement Cell",
         "remarks": "Add the company seal and signed first page.",
     },
@@ -346,7 +420,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Scholarship application form with family income and supporting details.",
         "status": "Pending",
-        "owner_email": "student.2024it016@institution.edu",
+        "owner_email": SCHOLARSHIP_SAMPLE_STUDENT_EMAIL,
         "department": "Scholarship Cell",
         "remarks": "Fee receipt still under verification.",
     },
@@ -357,7 +431,7 @@ SEED_DOCUMENTS = [
         "file_type": "JPG",
         "description": "Latest paid fee receipt for scholarship and audit purposes.",
         "status": "Approved",
-        "owner_email": "student.2024it016@institution.edu",
+        "owner_email": SCHOLARSHIP_SAMPLE_STUDENT_EMAIL,
         "department": "Scholarship Cell",
         "remarks": "Payment proof confirmed.",
     },
@@ -368,7 +442,7 @@ SEED_DOCUMENTS = [
         "file_type": "PDF",
         "description": "Monthly department report covering student readiness and pending records.",
         "status": "Approved",
-        "owner_email": "teacher.meera@institution.edu",
+        "owner_email": "meera.singh@pccoepune.org",
         "department": "Computer Engineering",
         "remarks": "Shared with admin dashboard.",
     },
@@ -380,6 +454,25 @@ def ensure_seed_data(app):
         db.create_all()
         ensure_workbench_tables()
         reset_workbench_sync_cache()
+
+        seeded_emails = {data["email"] for data in SEED_USERS}
+        removable_users = User.query.filter(
+            (~User.email.in_(seeded_emails)) | (~User.email.like("%@pccoepune.org"))
+        ).all()
+        for removable_user in removable_users:
+            for document in Document.query.filter_by(owner_id=removable_user.id).all():
+                db.session.delete(document)
+            db.session.delete(removable_user)
+        db.session.commit()
+        db.session.expire_all()
+
+        valid_role_emails = {}
+        for role in ("student", "teacher", "admin", "placement", "scholarship"):
+            valid_role_emails[role] = sorted(
+                data["email"] for data in SEED_USERS if data["role"] == role
+            )
+        prune_workbench_users(valid_role_emails)
+        db.session.commit()
 
         for data in SEED_DEPARTMENTS:
             department = Department.query.filter_by(name=data["name"]).first()

@@ -3,26 +3,26 @@
 {% block content %}
 <section class="auth-layout">
     <div class="auth-info glass-panel">
-        <p class="eyebrow">Role-Based Access</p>
-        <h1>Login to the institutional control center.</h1>
-        <p>Use the seeded database accounts or role-based registered accounts. After sign in, users are redirected to their own dashboard based on stored role.</p>
+        <p class="eyebrow">College Login Access</p>
+        <h1>Login with preloaded institute accounts.</h1>
+        <p>Signup is disabled. Students, teachers, admin and cell users are already saved in the database and are redirected to their own dashboard after sign in.</p>
         <div class="demo-credentials">
             {% for user in seeded_users %}
             <div><strong>{{ user.role.title() }}:</strong> {{ user.email }} / {{ user.password }}</div>
             {% endfor %}
-            <div><strong>Pattern:</strong> `student.name@institution.edu`, `teacher.name@institution.edu`, `admin.name@institution.edu`, `placement.name@institution.edu`, `scholarship.name@institution.edu`</div>
+            <div><strong>Pattern:</strong> students use `firstname.lastname24@pccoepune.org` and PRN like `124B1F095`; staff use `firstname.lastname@pccoepune.org`.</div>
         </div>
     </div>
     <form class="auth-form glass-panel" method="post">
         <h2>Welcome Back</h2>
         <label>Email
-            <input type="email" name="email" placeholder="admin@institution.edu" required>
+            <input type="email" name="email" placeholder="firstname.lastname24@pccoepune.org" required>
         </label>
         <label>Password
             <input type="password" name="password" placeholder="Enter password" required>
         </label>
         <button class="button primary" type="submit">Sign In</button>
-        <a class="auth-link" href="{{ url_for('auth.register') }}">Need the registration UI?</a>
+        <span class="auth-link">Accounts are managed directly in the database.</span>
     </form>
 </section>
 {% endblock %}
