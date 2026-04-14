@@ -29,19 +29,19 @@ class Config:
     ALLOWED_EXTENSIONS = {"pdf", "png", "jpg", "jpeg", "xlsx", "xls", "docx"}
 
     DEMO_USERS = {
-        "admin@institution.edu": {
-            "password": "admin123",
+        "aarav.sharma@pccoepune.org": {
+            "password": "Staff@123",
             "role": "admin",
             "name": "Aarav Sharma",
         },
-        "teacher@institution.edu": {
-            "password": "teacher123",
+        "meera.singh@pccoepune.org": {
+            "password": "Staff@123",
             "role": "teacher",
             "name": "Dr. Meera Singh",
         },
-        "student@institution.edu": {
-            "password": "student123",
+        "kanak.kushwaha24@pccoepune.org": {
+            "password": "PCCOE@123",
             "role": "student",
-            "name": "Riya Patel",
+            "name": "Kanak Kushwaha",
         },
     }

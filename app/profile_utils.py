@@ -11,11 +11,11 @@ from app.models import Department, User
 from app.workbench_sync import sync_workbench_user
 
 ROLE_EMAIL_PATTERNS = {
-    "student": r"^student\.[a-z0-9._-]+@institution\.edu$",
-    "teacher": r"^teacher\.[a-z0-9._-]+@institution\.edu$",
-    "admin": r"^admin\.[a-z0-9._-]+@institution\.edu$",
-    "placement": r"^placement\.[a-z0-9._-]+@institution\.edu$",
-    "scholarship": r"^scholarship\.[a-z0-9._-]+@institution\.edu$",
+    "student": r"^[a-z]+(?:\.[a-z]+)*\d{2}@pccoepune\.org$",
+    "teacher": r"^[a-z]+(?:\.[a-z]+)*@pccoepune\.org$",
+    "admin": r"^[a-z]+(?:\.[a-z]+)*@pccoepune\.org$",
+    "placement": r"^[a-z]+(?:\.[a-z]+)*@pccoepune\.org$",
+    "scholarship": r"^[a-z]+(?:\.[a-z]+)*@pccoepune\.org$",
 }
 
 IMAGE_EXTENSIONS = {"png", "jpg", "jpeg"}
@@ -60,8 +60,13 @@ def update_user_profile(user):
         return False
 
     if not re.match(ROLE_EMAIL_PATTERNS[user.role], email):
+        format_hint = (
+            "firstname.lastname24@pccoepune.org"
+            if user.role == "student"
+            else "firstname.lastname@pccoepune.org"
+        )
         flash(
-            f"{user.role.title()} email must follow pattern like {user.role}.name@institution.edu",
+            f"{user.role.title()} email must follow pattern like {format_hint}",
             "error",
         )
         return False

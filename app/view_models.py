@@ -5,8 +5,13 @@ from app.models import Department, Document, User
 from app.profile_utils import build_profile_image_url, get_initials
 
 DEPARTMENT_COLORS = {
+    "Civil Engineering": "dept-blue",
     "Computer Engineering": "dept-blue",
+    "AIML": "dept-blue",
+    "Computer Engineering Regional": "dept-blue",
+    "ENTC": "dept-blue",
     "Information Technology": "dept-blue",
+    "Mechanical Engineering": "dept-blue",
     "Placement Cell": "dept-gold",
     "Scholarship Cell": "dept-green",
     "Administration": "dept-neutral",
@@ -538,8 +543,13 @@ def group_users(users):
 def _department_summaries(departments, serialized_documents):
     summary = []
     theme_map = {
+        "Civil Engineering": "berry",
         "Computer Engineering": "berry",
+        "AIML": "berry",
+        "Computer Engineering Regional": "berry",
+        "ENTC": "berry",
         "Information Technology": "berry",
+        "Mechanical Engineering": "berry",
         "Placement Cell": "sunrise",
         "Scholarship Cell": "aqua",
         "Administration": "berry",
@@ -657,9 +667,7 @@ def _role_label(role):
 
 def get_study_year(user):
     prn = user.prn or ""
-    admission_year = None
-    if len(prn) >= 4 and prn[:4].isdigit():
-        admission_year = int(prn[:4])
+    admission_year = _extract_admission_year(prn)
 
     if admission_year is None:
         return 1
@@ -677,3 +685,17 @@ def get_study_year_label(user):
         4: "4th Year BTech",
     }
     return labels.get(get_study_year(user), "BTech")
+
+
+def _extract_admission_year(prn):
+    if not prn:
+        return None
+
+    normalized = str(prn).strip().upper()
+    if len(normalized) >= 4 and normalized[:4].isdigit():
+        return int(normalized[:4])
+
+    if len(normalized) >= 3 and normalized[1:3].isdigit():
+        return 2000 + int(normalized[1:3])
+
+    return None

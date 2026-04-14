@@ -20,6 +20,37 @@ ROLE_DISPLAY_MAP = {
 }
 
 
+def prune_workbench_users(valid_role_emails):
+    tables = _table_lookup()
+    for role, allowed_emails in valid_role_emails.items():
+        target_key = ROLE_TABLE_MAP.get(role)
+        table_name = tables.get(target_key) if target_key else None
+        if not table_name:
+            continue
+
+        columns = _column_lookup(table_name)
+        email_column = _pick_column(columns, "email_id", "email")
+
+        db.session.execute(
+            text(
+                f"DELETE FROM {table_name} "
+                f"WHERE {email_column} LIKE :legacy_pattern"
+            ),
+            {"legacy_pattern": "%@institution.edu"},
+        )
+
+        if allowed_emails:
+            placeholders = ", ".join(f":email_{index}" for index, _ in enumerate(allowed_emails))
+            params = {f"email_{index}": email for index, email in enumerate(allowed_emails)}
+            db.session.execute(
+                text(
+                    f"DELETE FROM {table_name} "
+                    f"WHERE {email_column} NOT IN ({placeholders})"
+                ),
+                params,
+            )
+
+
 @lru_cache(maxsize=1)
 def _table_lookup():
     inspector = inspect(db.engine)
@@ -197,13 +228,6 @@ def _sync_student(user, department_id, table_name):
     password_column = _pick_column(columns, "password")
     current_year = _get_study_year_label(user.prn)
     class_name = _get_class_label(current_year)
-    existing = db.session.execute(
-        text(
-            f"SELECT {prn_column} FROM {table_name} WHERE {email_column} = :email LIMIT 1"
-        ),
-        {"email": user.email},
-    ).fetchone()
-
     params = {
         "prn": user.prn,
         "name": user.name,
@@ -215,23 +239,14 @@ def _sync_student(user, department_id, table_name):
         "password": user.password_hash,
     }
 
-    if existing:
-        db.session.execute(
-            text(
-                f"UPDATE {table_name} SET "
-                f"{prn_column} = :prn, "
-                f"{name_column} = :name, "
-                f"{class_column} = :class_name, "
-                f"{email_column} = :email, "
-                f"{contact_column} = :contact_number, "
-                f"{department_column} = :department_id, "
-                f"{year_column} = :current_year, "
-                f"{password_column} = :password "
-                f"WHERE {email_column} = :email"
-            ),
-            params,
-        )
-        return
+    # Replace any stale row that conflicts on either PRN or email before inserting the fresh synced record.
+    db.session.execute(
+        text(
+            f"DELETE FROM {table_name} "
+            f"WHERE {email_column} = :email OR {prn_column} = :prn"
+        ),
+        {"email": user.email, "prn": user.prn},
+    )
 
     db.session.execute(
         text(
@@ -314,11 +329,11 @@ def _sync_role_directory(user, department_id, table_name, role_label):
 
 
 def _get_study_year_label(prn):
-    if not prn or len(prn) < 4 or not prn[:4].isdigit():
+    admission_year = _extract_admission_year(prn)
+    if admission_year is None:
         return "1st Year BTech"
 
     current_year = 2026
-    admission_year = int(prn[:4])
     year_no = max(1, min(current_year - admission_year, 4))
     labels = {
         1: "1st Year BTech",
@@ -337,6 +352,20 @@ def _get_class_label(current_year):
         "4th Year BTech": "BE",
     }
     return mapping.get(current_year, "FY")
+
+
+def _extract_admission_year(prn):
+    if not prn:
+        return None
+
+    normalized = str(prn).strip().upper()
+    if len(normalized) >= 4 and normalized[:4].isdigit():
+        return int(normalized[:4])
+
+    if len(normalized) >= 3 and normalized[1:3].isdigit():
+        return 2000 + int(normalized[1:3])
+
+    return None
 
 
 def _pick_column(columns, *candidates):
