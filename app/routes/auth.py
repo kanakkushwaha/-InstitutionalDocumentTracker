@@ -22,12 +22,15 @@ def _redirect_by_role(role):
     return redirect(url_for(endpoints.get(role, "auth.login")))
 
 
+# =========================
+# EMAIL PATTERNS (FINAL)
+# =========================
 ROLE_EMAIL_PATTERNS = {
-    "student": r"^student\.[a-z0-9._-]+@institution\.edu$",
-    "teacher": r"^teacher\.[a-z0-9._-]+@institution\.edu$",
-    "admin": r"^admin\.[a-z0-9._-]+@institution\.edu$",
-    "placement": r"^placement\.[a-z0-9._-]+@institution\.edu$",
-    "scholarship": r"^scholarship\.[a-z0-9._-]+@institution\.edu$",
+    "student": r"^[a-z]+\.[a-z]+\.[0-9]{2}@pccoepune\.org$",
+    "teacher": r"^[a-z]+\.[a-z]+@pccoepune\.org$",
+    "admin": r"^[a-z]+\.[a-z]+@pccoepune\.org$",
+    "placement": r"^[a-z]+\.[a-z]+@pccoepune\.org$",
+    "scholarship": r"^[a-z]+\.[a-z]+@pccoepune\.org$",
 }
 
 ROLE_PASSWORD_PREFIX = {
@@ -44,11 +47,15 @@ def index():
     return render_template("landing/index.html", payload=build_admin_payload())
 
 
+# =========================
+# LOGIN
+# =========================
 @auth_bp.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "POST":
         email = request.form.get("email", "").strip().lower()
         password = request.form.get("password", "").strip()
+
         user = User.query.filter_by(email=email, is_active=True).first()
 
         if user and user.check_password(password):
@@ -61,14 +68,18 @@ def login():
             flash(f"Welcome back, {user.name}!", "success")
             return _redirect_by_role(user.role)
 
-        flash("Invalid credentials. Use one of the seeded demo accounts shown on the page.", "error")
+        flash("Invalid credentials. Use seeded demo accounts.", "error")
 
     return render_template("auth/login.html", seeded_users=LOGIN_DEMO_USERS)
 
 
+# =========================
+# REGISTER
+# =========================
 @auth_bp.route("/register", methods=["GET", "POST"])
 def register():
     if request.method == "POST":
+
         name = request.form.get("name", "").strip()
         email = request.form.get("email", "").strip().lower()
         role = request.form.get("role", "").strip().lower()
@@ -77,17 +88,31 @@ def register():
         contact_number = request.form.get("contact_number", "").strip()
         prn = request.form.get("prn", "").strip() or None
 
+        # -------------------------
+        # ROLE VALIDATION
+        # -------------------------
         if role not in ROLE_EMAIL_PATTERNS:
             flash("Please choose a valid role.", "error")
             return redirect(url_for("auth.register"))
 
-        if not re.match(ROLE_EMAIL_PATTERNS[role], email):
-            flash(
-                f"{role.title()} email must follow pattern like {role}.name@institution.edu",
-                "error",
-            )
+        # -------------------------
+        # EMAIL VALIDATION (FIXED)
+        # -------------------------
+        pattern = ROLE_EMAIL_PATTERNS[role]
+
+        if not re.match(pattern, email):
+
+            if role == "student":
+                msg = "Student email must be firstname.lastname.22@pccoepune.org"
+            else:
+                msg = "Staff email must be firstname.lastname@pccoepune.org"
+
+            flash(msg, "error")
             return redirect(url_for("auth.register"))
 
+        # -------------------------
+        # PASSWORD VALIDATION
+        # -------------------------
         if not password.startswith(ROLE_PASSWORD_PREFIX[role]) or len(password) < 8:
             flash(
                 f"{role.title()} password must start with {ROLE_PASSWORD_PREFIX[role]}",
@@ -95,10 +120,16 @@ def register():
             )
             return redirect(url_for("auth.register"))
 
+        # -------------------------
+        # DUPLICATE EMAIL CHECK
+        # -------------------------
         if User.query.filter_by(email=email).first():
             flash("This email is already registered.", "error")
             return redirect(url_for("auth.register"))
 
+        # -------------------------
+        # STUDENT PRN CHECK
+        # -------------------------
         if role == "student" and not prn:
             flash("PRN is required for student registration.", "error")
             return redirect(url_for("auth.register"))
@@ -107,7 +138,11 @@ def register():
             flash("This PRN is already registered.", "error")
             return redirect(url_for("auth.register"))
 
+        # -------------------------
+        # DEPARTMENT HANDLING
+        # -------------------------
         department = Department.query.filter_by(name=department_name).first()
+
         if not department:
             default_departments = {
                 "student": ("Computer Engineering", "Academic"),
@@ -116,11 +151,22 @@ def register():
                 "placement": ("Placement Cell", "Placement"),
                 "scholarship": ("Scholarship Cell", "Scholarship"),
             }
-            resolved_name, resolved_category = default_departments.get(role, ("General Department", "Academic"))
-            department = Department(name=department_name or resolved_name, category=resolved_category)
+
+            resolved_name, resolved_category = default_departments.get(
+                role, ("General Department", "Academic")
+            )
+
+            department = Department(
+                name=department_name or resolved_name,
+                category=resolved_category
+            )
+
             db.session.add(department)
             db.session.flush()
 
+        # -------------------------
+        # CREATE USER
+        # -------------------------
         user = User(
             name=name,
             email=email,
@@ -129,41 +175,53 @@ def register():
             contact_number=contact_number or None,
             department=department,
         )
+
         user.set_password(password)
+
         db.session.add(user)
         db.session.flush()
+
+        # external sync
         sync_workbench_user(user)
+
         db.session.commit()
 
         flash("Account created successfully. Please sign in.", "success")
         return redirect(url_for("auth.login"))
+
+    # -------------------------
+    # GET REQUEST
+    # -------------------------
     return render_template(
         "auth/register.html",
         role_examples={
             "student": {
-                "email": "student.2025ce001@institution.edu",
+                "email": "firstname.lastname.22@pccoepune.org",
                 "password": "stu-2025ce001",
             },
             "teacher": {
-                "email": "teacher.meera@institution.edu",
+                "email": "firstname.lastname@pccoepune.org",
                 "password": "teach-meera1",
             },
             "admin": {
-                "email": "admin.aarav@institution.edu",
+                "email": "firstname.lastname@pccoepune.org",
                 "password": "admin-aarav1",
             },
             "placement": {
-                "email": "placement.kabir@institution.edu",
+                "email": "firstname.lastname@pccoepune.org",
                 "password": "place-kabir1",
             },
             "scholarship": {
-                "email": "scholarship.neha@institution.edu",
+                "email": "firstname.lastname@pccoepune.org",
                 "password": "schol-neha1",
             },
         },
     )
 
 
+# =========================
+# LOGOUT
+# =========================
 @auth_bp.route("/logout")
 def logout():
     session.pop("user", None)

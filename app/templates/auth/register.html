@@ -1,11 +1,18 @@
 {% extends 'base.html' %}
 {% block title %}Register{% endblock %}
+
 {% block content %}
 <section class="auth-layout">
+
     <div class="auth-info glass-panel">
         <p class="eyebrow">Structured Onboarding</p>
-        <h1>Create the UI flow for students, teachers, admin and cell teams.</h1>
-        <p>Use role-specific email and password patterns so every new user signs in to the correct dedicated dashboard.</p>
+
+        <h1>Create accounts for Students, Teachers, Admin & Cells</h1>
+
+        <p>
+            Each role uses strict email formats for secure dashboard access.
+        </p>
+
         <div class="demo-credentials">
             <div><strong>Student:</strong> {{ role_examples.student.email }} / {{ role_examples.student.password }}</div>
             <div><strong>Teacher:</strong> {{ role_examples.teacher.email }} / {{ role_examples.teacher.password }}</div>
@@ -14,14 +21,29 @@
             <div><strong>Scholarship Cell:</strong> {{ role_examples.scholarship.email }} / {{ role_examples.scholarship.password }}</div>
         </div>
     </div>
-    <form class="auth-form glass-panel" method="post">
+
+    <form class="auth-form glass-panel" method="post" onsubmit="return validateEmail()">
+
         <h2>Register User</h2>
+
+        <!-- NAME -->
         <label>Full Name
             <input type="text" name="name" placeholder="Enter full name" required>
         </label>
+
+        <!-- EMAIL -->
         <label>Email
-            <input type="email" name="email" placeholder="student.2025ce001@institution.edu" required>
+            <input type="email" id="email" name="email"
+                   placeholder="firstname.lastname.22@pccoepune.org"
+                   required>
+
+            <small>
+                Student → firstname.lastname.22@pccoepune.org<br>
+                Staff → firstname.lastname@pccoepune.org
+            </small>
         </label>
+
+        <!-- ROLE -->
         <label>Role
             <select name="role" required>
                 <option value="student">Student</option>
@@ -31,19 +53,53 @@
                 <option value="scholarship">Scholarship Cell</option>
             </select>
         </label>
+
+        <!-- PASSWORD -->
         <label>Password
-            <input type="password" name="password" placeholder="stu-2025ce001 / teach-meera1 / admin-aarav1 / place-kabir1" required>
+            <input type="password" name="password"
+                   placeholder="stu-..., teach-..., admin-..., place-..., schol-..."
+                   required>
         </label>
+
+        <!-- DEPARTMENT -->
         <label>Department
             <input type="text" name="department" placeholder="Computer Engineering">
         </label>
+
+        <!-- CONTACT -->
         <label>Contact Number
             <input type="text" name="contact_number" placeholder="Enter contact number">
         </label>
-        <label>PRN
-            <input type="text" name="prn" placeholder="Only required for students">
+
+        <!-- PRN -->
+        <label>PRN (Only for Students)
+            <input type="text" name="prn" placeholder="Required for students only">
         </label>
+
         <button class="button primary" type="submit">Create Account</button>
+
     </form>
+
 </section>
+
+<!-- ✅ CLIENT SIDE VALIDATION (UPDATED FOR YEAR) -->
+<script>
+function validateEmail() {
+    let email = document.getElementById("email").value.trim();
+
+    // Student: firstname.lastname.22@pccoepune.org
+    const studentPattern = /^[a-z]+\.[a-z]+\.[0-9]{2}@pccoepune\.org$/;
+
+    // Staff: firstname.lastname@pccoepune.org
+    const staffPattern = /^[a-z]+\.[a-z]+@pccoepune\.org$/;
+
+    if (!(studentPattern.test(email) || staffPattern.test(email))) {
+        alert("Invalid email format!\nStudent: firstname.lastname.22@pccoepune.org\nStaff: firstname.lastname@pccoepune.org");
+        return false;
+    }
+
+    return true;
+}
+</script>
+
 {% endblock %}
